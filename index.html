@@ -248,6 +248,30 @@
 body:before{opacity:.15!important}
 body:after{opacity:.25!important}
 
+
+/* FINAL video background visibility fix */
+.tcAssetBgVideo,
+.tc-bg-video{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  z-index:-998!important;
+  display:none;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+.tcAssetBgVideo.isOn,
+.tc-bg-video.on{
+  display:block!important;
+}
+.tcAssetBgImage.videoMode,
+.tc-bg-layer.videoMode{
+  opacity:0!important;
+  background-image:none!important;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
@@ -328,7 +352,7 @@ body:after{opacity:.25!important}
       safeHref('discordBtn', s.discordUrl);
       safeHref('discordHero', s.discordUrl);
 
-      var connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
+      var connect = s.connectUrl || 'sv.dolp.kr';
       ['startTop','startHero','gameStart','connectBtn'].forEach(function(id){
         var el = document.getElementById(id);
         if(el) el.href = 'fivem://connect/' + connect;
@@ -370,12 +394,12 @@ body:after{opacity:.25!important}
     <span id="heroPatchSub">최신 패치노트</span>
   </div>
   <div class="stat">
-    <b id="heroPlayersMain">실시간 인원</b>
+    <b id="heroPlayersMain">RP</b>
     <span id="heroPlayersSub">실시간 인원 확인중</span>
   </div>
   <div class="stat">
     <b id="heroConnectMain">24H</b>
-    <span id="heroConnectSub">connect (추후 다이렉트 주소 추가)</span>
+    <span id="heroConnectSub">connect sv.dolp.kr</span>
   </div>
 </div>
 
@@ -413,7 +437,7 @@ body:after{opacity:.25!important}
 </div>
 
 <footer><div class="foot"><div><b>TURN CITY</b><p>새로운 도시, 새로운 선택. Turn City 공식 홈페이지입니다.</p></div><div><b>MENU</b><a href="#status">유저보드</a><a href="patchnote.html">패치노트</a><a href="#guide">가이드</a></div><div><b>COMMUNITY</b><a id="foot디스코드" target="_blank">디스코드</a><a id="footNotice" target="_blank">공지 채널</a></div><div><b>SERVER</b><p id="footAddress">connect 주소 준비중</p></div></div><div class="copyr">© 2026 Turn City. All rights reserved.</div></footer>
-  <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="(추후 다이렉트 주소 추가)"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
+  <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="sv.dolp.kr"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
   <script>
     const DEFAULT={discord:'https://discord.gg/2026turn',connect:'',api:'',notice:'https://discord.gg/2026turn',icon:'',bg:'',hero:'현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.'};
     let cfg={...DEFAULT,...JSON.parse(localStorage.getItem('turn_city_config')||'{}')};let players=[];
@@ -564,7 +588,7 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
       safeSetHref('discordTop', s.discordUrl);
       safeSetHref('discordBtn', s.discordUrl);
       safeSetHref('discordHero', s.discordUrl);
-      const connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
+      const connect = s.connectUrl || 'sv.dolp.kr';
       ['startTop','startHero','gameStart','connectBtn'].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.href = 'fivem://connect/' + connect;
@@ -632,7 +656,7 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
         setText('heroPlayersSub', '서버 상태 확인 불가');
       }
     }catch(e){
-      setText('heroPlayersMain', '실시간 인원');
+      setText('heroPlayersMain', 'RP');
       setText('heroPlayersSub', '서버 API 연결 대기');
     }
   }
@@ -641,12 +665,12 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
     try{
       const res = await fetch('/api/settings', {cache:'no-store'});
       const s = await res.json();
-      const connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
+      const connect = s.connectUrl || 'sv.dolp.kr';
       setText('heroConnectMain', 'CONNECT');
       setText('heroConnectSub', `connect ${connect}`);
     }catch(e){
       setText('heroConnectMain', 'CONNECT');
-      setText('heroConnectSub', 'connect (추후 다이렉트 주소 추가)');
+      setText('heroConnectSub', 'connect sv.dolp.kr');
     }
   }
 
@@ -659,6 +683,78 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
+})();
+</script>
+
+
+<script>
+/* FINAL Turn City video background apply */
+(function(){
+  function ensureVideoEl(){
+    let v = document.getElementById('tcAssetBgVideo') || document.getElementById('tcBgVideo');
+    if(!v){
+      v = document.createElement('video');
+      v.id = 'tcAssetBgVideo';
+      v.className = 'tcAssetBgVideo';
+      v.autoplay = true;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      document.body.prepend(v);
+    }
+    v.muted = true;
+    v.loop = true;
+    v.autoplay = true;
+    v.playsInline = true;
+    return v;
+  }
+
+  function disableImageBg(){
+    ['tcAssetBgImage','tcBgLayer'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){
+        el.classList.add('videoMode');
+        el.style.opacity = '0';
+        el.style.backgroundImage = 'none';
+      }
+    });
+  }
+
+  async function applyVideoBg(){
+    try{
+      const res = await fetch('/api/assets', {cache:'no-store'});
+      const a = await res.json();
+
+      if(!a.bgVideoUrl){
+        console.log('[TurnCity] no bgVideoUrl', a);
+        return;
+      }
+
+      disableImageBg();
+
+      const v = ensureVideoEl();
+      if(v.src !== a.bgVideoUrl) v.src = a.bgVideoUrl;
+      v.classList.add('isOn');
+      v.classList.add('on');
+      v.style.display = 'block';
+      v.style.zIndex = '-998';
+
+      const playResult = v.play();
+      if(playResult && playResult.catch) playResult.catch(err=>console.warn('[TurnCity] video autoplay blocked?', err));
+
+      console.log('[TurnCity] video background applied', a.bgVideoUrl);
+    }catch(e){
+      console.warn('[TurnCity] video background failed', e);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyVideoBg);
+  }else{
+    applyVideoBg();
+  }
+
+  setTimeout(applyVideoBg, 1000);
 })();
 </script>
 
