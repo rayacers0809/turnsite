@@ -787,7 +787,7 @@ section:last-of-type {
     try{
       const res = await fetch('/api/settings', {cache:'no-store'});
       const s = await res.json();
-      const connect = s.connectUrl || 'sv.dolp.kr';
+      const connect = s.connectUrl || '(추후 추가(서버 다이렉트)';
       setText('heroConnectMain', 'CONNECT');
       setText('heroConnectSub', `connect ${connect}`);
     }catch(e){
@@ -1199,7 +1199,7 @@ section:last-of-type {
       const s = await res.json();
 
       const discord = s.discordUrl || "https://discord.gg/2026turn";
-      const connect = s.connectUrl || "sv.dolp.kr";
+      const connect = s.connectUrl || "(추후 추가(서버 다이렉트)";
       const connectHref = "fivem://connect/" + connect.replace(/^connect\s+/i, "");
 
       ["nav디스코드","hero디스코드","cta디스코드","foot디스코드","mob디스코드","footNotice"].forEach(id => safeHref(id, discord));
