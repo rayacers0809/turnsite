@@ -468,6 +468,54 @@ section:last-of-type {
   padding-bottom: 80px;
 }
 
+
+/* Main patchnote click modal fix */
+.patch-modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+  background:rgba(0,0,0,.68)!important;
+  display:none;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:20px!important;
+}
+.patch-modal.open{display:flex!important}
+.patch-modal-box{
+  width:min(820px,calc(100vw - 32px))!important;
+  max-height:86vh!important;
+  overflow:auto!important;
+  background:rgba(9,20,36,.97)!important;
+  border:1px solid rgba(80,170,255,.36)!important;
+  border-radius:26px!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.55)!important;
+}
+.patch-modal-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+  padding:22px 24px!important;
+  border-bottom:1px solid rgba(255,255,255,.1)!important;
+}
+.patch-modal-head b{font-size:18px;color:#fff}
+.patch-modal-close{
+  width:36px!important;height:36px!important;border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  background:rgba(255,255,255,.06)!important;color:#fff!important;font-size:18px!important;cursor:pointer!important;
+}
+.patch-modal-body{padding:24px!important}
+.patch-content{color:rgba(255,255,255,.74);font-size:14.5px;line-height:1.85;word-break:break-word}
+.patch-content h1,.patch-content h2,.patch-content h3{color:#fff;margin:22px 0 12px}
+.patch-content h2{border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:8px}
+.patch-content ul,.patch-content ol{padding-left:22px;margin:10px 0;display:flex;flex-direction:column;gap:5px}
+.patch-content blockquote{margin:14px 0;padding:12px 18px;border-left:4px solid #2f7dff;background:rgba(47,125,255,.08);border-radius:0 10px 10px 0}
+.patch-content code{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);padding:2px 6px;border-radius:6px;color:#aeeaff}
+.patch-content pre{background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;overflow:auto}
+.patch-content pre code{background:none;border:0;padding:0}
+.patch-content img{max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.1);margin:14px 0}
+.patchnoteCard{cursor:pointer!important;position:relative;z-index:3}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
@@ -534,76 +582,7 @@ section:last-of-type {
 
 
 
-<script>
-const TC_PATCH_CACHE='turncity_main_patch_cards_v2';
-let TC_PATCHES=[];
-function tcEsc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-function tcTagObj(tags){
-  const t=(tags||[])[0]||'patch';
-  return {key:t,label:({new:'신규',fix:'버그수정',change:'변경',remove:'삭제',patch:'패치노트'})[t]||'패치노트'};
-}
-function tcDate(p){if(p.createdAt?.seconds)return new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR');return p.date||'';}
-function tcDesc(p){const b=(p.blocks||[]).find(x=>x.type==='text');return (b?.text||'').replace(/[#*_>`\[\]~\-]/g,'').replace(/\s+/g,' ').slice(0,115)||'클릭해서 자세히 보기';}
-function tcThumb(p){const img=(p.blocks||[]).find(x=>x.type==='image')?.url;return img?`<img src="${tcEsc(img)}" alt="">`:`<div class="patchnoteThumbPh">🏙️</div>`;}
-function preprocessMarkdown(md){return String(md||'').replace(/:::([a-zA-Z가-힣]+)\n([\s\S]*?):::/g,(m,type,body)=>`<div class="patch-callout ${type.toLowerCase()}">${typeof marked!=='undefined'?marked.parse(body.trim()):tcEsc(body)}</div>`);}
-function renderMarkdown(md){return typeof marked!=='undefined'?marked.parse(preprocessMarkdown(md)):('<p>'+tcEsc(md)+'</p>');}
-function patchHtml(p){
-  const blocks=p.blocks||[];
-  const html=blocks.map(b=>{
-    if(b.type==='text')return `<div>${renderMarkdown(b.text||'')}</div>`;
-    if(b.type==='image')return `<img src="${tcEsc(b.url||'')}" alt="">`;
-    if(b.type==='callout')return `<div class="patch-callout ${tcEsc(b.callout_type||'info')}">${renderMarkdown(b.text||'')}</div>`;
-    return '';
-  }).join('') || '<p>내용이 없습니다.</p>';
-  const tag=tcTagObj(p.tags);
-  return `<div class="patch-meta"><span class="patchnoteTag ${tag.key}">${tag.label}</span><span>${tcEsc(tcDate(p))}</span></div><div class="patch-content">${html}</div>`;
-}
-function openPatchPreview(i){
-  const p=TC_PATCHES[i]; if(!p)return;
-  { const __tcEl=document.getElementById('patchPreviewTitle'); if(__tcEl) __tcEl.textContent=p.title||p.ver||'패치노트'; }
-  document.getElementById('patchPreviewBody').innerHTML=patchHtml(p);
-  document.getElementById('patchPreviewModal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closePatchPreview(){document.getElementById('patchPreviewModal').classList.remove('open');document.body.style.overflow='';}
-function renderMainPatchnotes(list){
-  TC_PATCHES=list.slice(0,3);
-  const grid=document.getElementById('mainPatchnoteGrid');
-  if(!grid)return;
-  if(!TC_PATCHES.length){
-    grid.innerHTML='<div class="patchnoteLoading">등록된 패치노트가 없습니다.</div>';
-    return;
-  }
-  grid.innerHTML=TC_PATCHES.map((p,i)=>{
-    const tag=tcTagObj(p.tags);
-    return `<article class="patchnoteCard" onclick="openPatchPreview(${i})">
-      <div class="patchnoteThumb">${tcThumb(p)}</div>
-      <div class="patchnoteBody">
-        <span class="patchnoteTag ${tag.key}">${tag.label}</span>
-        <div class="patchnoteDate">${tcEsc(tcDate(p))}</div>
-        <div class="patchnoteTitle">${tcEsc(p.title||p.ver||'패치노트')}</div>
-        <div class="patchnoteDesc">${tcEsc(tcDesc(p))}</div>
-      </div>
-    </article>`;
-  }).join('');
-}
-async function loadMainPatchnotes(){
-  try{const c=JSON.parse(localStorage.getItem(TC_PATCH_CACHE)||'null');if(c&&Date.now()-c.ts<60000&&c.data?.length)renderMainPatchnotes(c.data);}catch{}
-  try{
-    const r=await fetch('/api/patches',{cache:'no-store'});
-    const d=await r.json();
-    const arr=(d.patches||[]).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    localStorage.setItem(TC_PATCH_CACHE,JSON.stringify({ts:Date.now(),data:arr}));
-    renderMainPatchnotes(arr);
-  }catch(e){
-    console.warn('[main patchnotes]',e);
-    const grid=document.getElementById('mainPatchnoteGrid');
-    if(grid)grid.innerHTML='<div class="patchnoteLoading">패치노트를 불러오지 못했습니다.</div>';
-  }
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('patchPreviewModal')?.classList.contains('open'))closePatchPreview();});
-window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
-</script>
+
 
 
 <script>
@@ -841,6 +820,140 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
   }
 
   setTimeout(loadAssets, 1200);
+})();
+</script>
+
+
+<script>
+/* Main page patchnote card click fix */
+(function(){
+  const CACHE_KEY = "turncity_main_patch_click_fix_v1";
+  let PATCHES = [];
+
+  function esc(s){
+    return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  }
+
+  function tagObj(tags){
+    const t = (tags||[])[0] || "patch";
+    return {key:t,label:({new:"신규",fix:"버그수정",change:"변경",remove:"삭제",patch:"패치노트"})[t] || "패치노트"};
+  }
+
+  function dateOf(p){
+    if(p?.createdAt?.seconds) return new Date(p.createdAt.seconds*1000).toLocaleDateString("ko-KR");
+    return p?.date || "";
+  }
+
+  function descOf(p){
+    const b = (p.blocks||[]).find(x=>x.type==="text");
+    return (b?.text||"").replace(/[#*_>`\[\]~\-]/g,"").replace(/\s+/g," ").slice(0,115) || "클릭해서 자세히 보기";
+  }
+
+  function thumbOf(p){
+    const img = (p.blocks||[]).find(x=>x.type==="image")?.url;
+    return img ? `<img src="${esc(img)}" alt="">` : `<div class="patchnoteThumbPh">🏙️</div>`;
+  }
+
+  function preprocess(md){
+    return String(md||"").replace(/:::([a-zA-Z가-힣]+)\n([\s\S]*?):::/g,(m,type,body)=>{
+      const inner = (window.marked && window.marked.parse) ? window.marked.parse(String(body||"").trim()) : esc(body);
+      return `<div class="patch-callout ${esc(type.toLowerCase())}">${inner}</div>`;
+    });
+  }
+
+  function md(mdText){
+    const processed = preprocess(mdText||"");
+    if(window.marked && window.marked.parse) return window.marked.parse(processed);
+    return `<p>${esc(processed)}</p>`;
+  }
+
+  function contentHtml(p){
+    const blocks = p.blocks || [];
+    const html = blocks.map(b=>{
+      if(b.type === "image") return `<img src="${esc(b.url||"")}" alt="">`;
+      if(b.type === "callout") return `<div class="patch-callout ${esc(b.callout_type||"info")}">${md(b.text||"")}</div>`;
+      return `<div>${md(b.text||"")}</div>`;
+    }).join("") || "<p>내용이 없습니다.</p>";
+
+    const tag = tagObj(p.tags);
+    return `<div class="patch-meta"><span class="patchnoteTag ${tag.key}">${tag.label}</span><span>${esc(dateOf(p))}</span></div><div class="patch-content">${html}</div>`;
+  }
+
+  window.openPatchPreview = function(i){
+    const p = PATCHES[i];
+    if(!p) return;
+    const title = document.getElementById("patchPreviewTitle");
+    const body = document.getElementById("patchPreviewBody");
+    const modal = document.getElementById("patchPreviewModal");
+    if(title) title.textContent = p.title || p.ver || "패치노트";
+    if(body) body.innerHTML = contentHtml(p);
+    if(modal) modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closePatchPreview = function(){
+    const modal = document.getElementById("patchPreviewModal");
+    if(modal) modal.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  function renderCards(list){
+    PATCHES = list.slice(0,3);
+    const grid = document.getElementById("mainPatchnoteGrid");
+    if(!grid) return;
+
+    if(!PATCHES.length){
+      grid.innerHTML = '<div class="patchnoteLoading">등록된 패치노트가 없습니다.</div>';
+      return;
+    }
+
+    grid.innerHTML = PATCHES.map((p,i)=>{
+      const tag = tagObj(p.tags);
+      return `<article class="patchnoteCard" data-patch-index="${i}">
+        <div class="patchnoteThumb">${thumbOf(p)}</div>
+        <div class="patchnoteBody">
+          <span class="patchnoteTag ${tag.key}">${tag.label}</span>
+          <div class="patchnoteDate">${esc(dateOf(p))}</div>
+          <div class="patchnoteTitle">${esc(p.title||p.ver||"패치노트")}</div>
+          <div class="patchnoteDesc">${esc(descOf(p))}</div>
+        </div>
+      </article>`;
+    }).join("");
+
+    grid.querySelectorAll(".patchnoteCard").forEach(card=>{
+      card.addEventListener("click",()=>{
+        window.openPatchPreview(Number(card.dataset.patchIndex));
+      });
+    });
+  }
+
+  async function loadPatches(){
+    try{
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+      if(cached && Date.now()-cached.ts<30000 && cached.data?.length){
+        renderCards(cached.data);
+      }
+    }catch{}
+
+    try{
+      const r = await fetch("/api/patches?cb="+Date.now(),{cache:"no-store"});
+      const d = await r.json();
+      const arr = (d.patches||[]).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+      localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data:arr}));
+      renderCards(arr);
+    }catch(e){
+      console.warn("[main patch click fix]",e);
+      const grid = document.getElementById("mainPatchnoteGrid");
+      if(grid) grid.innerHTML = '<div class="patchnoteLoading">패치노트를 불러오지 못했습니다.</div>';
+    }
+  }
+
+  document.addEventListener("keydown",e=>{
+    if(e.key === "Escape") window.closePatchPreview();
+  });
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",loadPatches);
+  else loadPatches();
 })();
 </script>
 
