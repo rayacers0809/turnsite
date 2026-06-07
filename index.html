@@ -352,6 +352,65 @@ nav {
   z-index: -1 !important;
 }
 
+
+/* ===== TURN CITY FOOTER FINAL FIX =====
+   영상/이미지 배경이 footer 뒤로 비쳐서 하단이 지저분하게 보이는 문제 해결
+*/
+footer {
+  position: relative !important;
+  z-index: 3 !important;
+  margin-top: 0 !important;
+  background: #030912 !important;
+  border-top: 1px solid rgba(255,255,255,.12) !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(3,9,18,.98), #030912 72%, #030912),
+    radial-gradient(circle at 20% 0%, rgba(47,125,255,.14), transparent 34%),
+    radial-gradient(circle at 80% 20%, rgba(65,214,255,.10), transparent 30%);
+}
+
+footer .foot {
+  position: relative;
+  z-index: 2;
+  padding-top: 54px !important;
+  padding-bottom: 42px !important;
+}
+
+footer .copyr {
+  position: relative;
+  z-index: 2;
+  background: #030912 !important;
+  border-top: 1px solid rgba(255,255,255,.10) !important;
+}
+
+/* 마지막 섹션과 footer 사이가 영상 배경과 섞이지 않도록 처리 */
+section:last-of-type {
+  padding-bottom: 80px;
+}
+
+/* 페이지 최하단 흰 줄/비침 방지 */
+html, body {
+  min-height: 100%;
+  background-color: #030912 !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* footer 안의 오래된 유저보드 링크가 있어도 튀지 않게 */
+footer a[href="#status"] {
+  display: none !important;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
@@ -466,7 +525,7 @@ nav {
 
   <div id="bg"></div><div class="orb a"></div><div class="orb b"></div>
   <nav><a class="brand" href="#home"><img id="siteIcon" alt="Turn City"><span>TURN CITY</span></a><ul class="navlinks"><li><a href="patchnote.html">패치노트</a></li><li><a href="#feature">소개</a></li><li><a href="#guide">시작가이드</a></li></ul><button class="menu" onclick="toggleMenu()">☰</button><div class="navright"><a id="nav디스코드" class="pillbtn" target="_blank">디스코드</a><a id="navConnect" class="pillbtn primary">게임 시작</a></div></nav>
-  <div class="mobile" id="mobile"><a href="#status">유저보드</a><a href="patchnote.html">패치노트</a><a href="#feature">소개</a><a href="#guide">시작가이드</a><a id="mob디스코드" target="_blank">디스코드 참여</a></div>
+  <div class="mobile" id="mobile"><a href="patchnote.html">패치노트</a><a href="#feature">소개</a><a href="#guide">시작가이드</a><a id="mob디스코드" target="_blank">디스코드 참여</a></div>
   <section class="hero" id="home"><div><div class="eyebrow"><span class="dot"></span>TURN CITY OFFICIAL</div><h1>새로운 도시,<br><em>Turn City</em>에서<br>당신의 차례가 시작됩니다</h1><p class="sub">현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.</p><div class="actions"><a id="heroConnect" class="btn main">게임 접속하기</a><a id="hero디스코드" class="btn" target="_blank">디스코드 참여하기</a><a class="btn" href="patchnote.html">패치노트 보기</a></div>
 <div class="hero-stats" id="heroStats">
   <div class="stat">
@@ -502,9 +561,6 @@ nav {
 
   <section id="feature"><div class="wrap"><div class="head"><div><div class="title">도시 핵심 구성</div><div class="desc">참고 사이트들의 장점을 섞어 랜딩·정보·유저보드 중심으로 구성했습니다.</div></div></div><div class="grid3"><div class="card"><div class="ico">🏙️</div><h3>몰입형 도시 분위기</h3><p>히어로 영역은 큰 배경 이미지와 블루 네온 그라데이션으로 첫 인상을 강하게 잡았습니다.</p></div><div class="card"><div class="ico">👥</div><h3>유저보드 중심</h3><p>SHIBA처럼 현재 인원과 접속자 리스트를 메인 콘텐츠로 배치했습니다.</p></div><div class="card"><div class="ico">⚡</div><h3>빠른 진입 동선</h3><p>게임 접속, 디스코드, 공지, 가이드를 상단과 CTA에 반복 배치해 유저가 바로 움직일 수 있습니다.</p></div></div></div></section>
   <section id="guide"><div class="wrap"><div class="head"><div><div class="title">시작 가이드</div><div class="desc">처음 오는 유저도 바로 시작할 수 있게 4단계로 정리했습니다.</div></div></div><div class="guide"><div class="step"><div class="num">01</div><b>디스코드 참여</b><span>공지와 규칙을 먼저 확인합니다.</span></div><div class="step"><div class="num">02</div><b>서버 접속</b><span>connect 주소 또는 게임 시작 버튼으로 입장합니다.</span></div><div class="step"><div class="num">03</div><b>캐릭터 생성</b><span>나만의 직업과 스토리를 선택합니다.</span></div><div class="step"><div class="num">04</div><b>도시 생활 시작</b><span>유저들과 함께 Turn City RP를 즐깁니다.</span></div></div><div class="cta"><h2>Turn City에 합류할 시간</h2><p>서버 주소는 나중에 변경 가능하게 만들어두었습니다. 관리자 패널에서 디스코드, 커넥트 주소, 배경, 아이콘, API 주소를 수정하세요.</p><div class="actions"><a id="ctaConnect" class="btn main">게임 시작</a><a id="cta디스코드" class="btn" target="_blank">DISCORD</a></div></div></div></section>
-  
-</div>
-
 
 <div class="patch-modal" id="patchPreviewModal" onclick="if(event.target===this)closePatchPreview()">
   <div class="patch-modal-box">
@@ -516,7 +572,7 @@ nav {
   </div>
 </div>
 
-<footer><div class="foot"><div><b>TURN CITY</b><p>새로운 도시, 새로운 선택. Turn City 공식 홈페이지입니다.</p></div><div><b>MENU</b><a href="#status">유저보드</a><a href="patchnote.html">패치노트</a><a href="#guide">가이드</a></div><div><b>COMMUNITY</b><a id="foot디스코드" target="_blank">디스코드</a><a id="footNotice" target="_blank">공지 채널</a></div><div><b>SERVER</b><p id="footAddress">connect 주소 준비중</p></div></div><div class="copyr">© 2026 Turn City. All rights reserved.</div></footer>
+<footer><div class="foot"><div><b>TURN CITY</b><p>새로운 도시, 새로운 선택. Turn City 공식 홈페이지입니다.</p></div><div><b>MENU</b><a href="patchnote.html">패치노트</a><a href="#guide">가이드</a></div><div><b>COMMUNITY</b><a id="foot디스코드" target="_blank">디스코드</a><a id="footNotice" target="_blank">공지 채널</a></div><div><b>SERVER</b><p id="footAddress">connect 주소 준비중</p></div></div><div class="copyr">© 2026 Turn City. All rights reserved.</div></footer>
   <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="sv.dolp.kr"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
   <script>
     const DEFAULT={discord:'https://discord.gg/2026turn',connect:'',api:'',notice:'https://discord.gg/2026turn',icon:'',bg:'',hero:'현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.'};
@@ -947,6 +1003,28 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
 
   setTimeout(applyAssets, 1000);
   setTimeout(applyAssets, 3000);
+})();
+</script>
+
+
+<script>
+/* Footer connect text sync */
+(function(){
+  async function syncFooter(){
+    try{
+      const r = await fetch('/api/settings', {cache:'no-store'});
+      const s = await r.json();
+      const connect = s.connectUrl || 'sv.dolp.kr';
+      const foot = document.getElementById('footAddress');
+      if(foot) foot.textContent = 'connect ' + connect;
+      ['foot디스코드','footNotice'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el && s.discordUrl) el.href = s.discordUrl;
+      });
+    }catch(e){}
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncFooter);
+  else syncFooter();
 })();
 </script>
 
