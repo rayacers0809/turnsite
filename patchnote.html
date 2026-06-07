@@ -310,6 +310,18 @@ footer{position:relative;z-index:10;background:rgba(8,6,9,.9);border-top:1px sol
 .news-card:hover,.patchnoteCard:hover{transform:translateY(-3px)}
 body.modal-open{overflow:hidden}
 
+
+/* Turn City single modal fix */
+#patchModalOv,
+.patch-modal:not(#patchPreviewModal),
+.patchModal:not(#patchModalFix){
+  display:none!important;
+  pointer-events:none!important;
+}
+#patchModalFix{
+  pointer-events:auto!important;
+}
+
 </style>
 <script>
 (function(){try{const c=JSON.parse(localStorage.getItem('mochi_assets')||'{}');if(c.bgVideo&&c.bgVideo!=='_none_'){const l=document.createElement('link');l.rel='preload';l.as='video';l.href=c.bgVideo;document.head.appendChild(l);}else if(c.bgSlides&&c.bgSlides.length){const l=document.createElement('link');l.rel='preload';l.as='image';l.href=c.bgSlides[0];document.head.appendChild(l);}}catch{}})();
@@ -374,7 +386,7 @@ window.preprocessMarkdown = window.preprocessMarkdown || function(md){
         <div class="featured-date" id="featuredDate">—</div>
         <div class="featured-title" id="featuredTitle"><span class="spin"></span> 불러오는 중...</div>
         <div class="featured-desc" id="featuredDesc"></div>
-        <button class="featured-btn" id="featuredBtn" onclick="openDetail(0)">최신 소식 읽기 →</button>
+        <button class="featured-btn" id="featuredBtn" onclick="openPatchModalFix(0)">최신 소식 읽기 →</button>
       </div>
       <div class="featured-thumb" id="featuredThumb">
         <div class="featured-thumb-ph">🫧</div>
@@ -452,11 +464,11 @@ function getThumbHtml(p){const img=(p.blocks||[]).find(b=>b.type==='image');cons
 function sortPatches(a,b){return (Number(b.createdAt?.seconds||0)-Number(a.createdAt?.seconds||0)) || String(b.date||b.ver||'').localeCompare(String(a.date||a.ver||''));}
 function applyFilter(){filtered=allPatches.filter(p=>!curSearch||(p.ver||'').toLowerCase().includes(curSearch)||(p.title||'').toLowerCase().includes(curSearch)||(p.blocks||[]).some(b=>(b.text||'').toLowerCase().includes(curSearch)));}
 function renderFeatured(){if(!allPatches.length)return;const p=allPatches[0],ti=getTagInfo(p.tags),ft=document.getElementById('featuredTag');ft.textContent=ti.label;ft.className='featured-tag nc-tag '+ti.cls;document.getElementById('featuredDate').textContent=getDate(p);document.getElementById('featuredTitle').textContent=p.title||p.ver||'Turn City 소식';document.getElementById('featuredDesc').textContent=getDesc(p)||'Turn City의 최신 소식을 확인하세요.';document.getElementById('featuredThumb').innerHTML=getThumbHtml(p);}
-function renderGrid(){applyFilter();const total=Math.ceil(filtered.length/PER_PAGE)||1;if(curPage>total)curPage=total;const items=filtered.slice((curPage-1)*PER_PAGE,curPage*PER_PAGE);const grid=document.getElementById('newsGrid');if(!items.length){grid.innerHTML='<div style="grid-column:1/-1" class="empty-state"><div class="empty-state-ico">📋</div><div>소식이 없습니다.</div></div>';}else grid.innerHTML=items.map(p=>{const ti=getTagInfo(p.tags);const idx=allPatches.indexOf(p);return`<div class="news-card" onclick="openDetail(${idx})"><div class="nc-thumb">${getThumbHtml(p)}</div><div class="nc-body"><div class="nc-meta"><span class="nc-tag ${ti.cls}">${ti.label}</span><span class="nc-date">${getDate(p)}</span></div><div class="nc-title">${esc(p.title||p.ver||'패치노트')}</div><div class="nc-desc">${esc(getDesc(p))}</div></div></div>`}).join('');document.getElementById('pageInfo').textContent=`${curPage} / ${total}`;document.getElementById('prevBtn').disabled=curPage<=1;document.getElementById('nextBtn').disabled=curPage>=total;}
+function renderGrid(){applyFilter();const total=Math.ceil(filtered.length/PER_PAGE)||1;if(curPage>total)curPage=total;const items=filtered.slice((curPage-1)*PER_PAGE,curPage*PER_PAGE);const grid=document.getElementById('newsGrid');if(!items.length){grid.innerHTML='<div style="grid-column:1/-1" class="empty-state"><div class="empty-state-ico">📋</div><div>소식이 없습니다.</div></div>';}else grid.innerHTML=items.map(p=>{const ti=getTagInfo(p.tags);const idx=allPatches.indexOf(p);return`<div class="news-card" onclick="openPatchModalFix(${idx})"><div class="nc-thumb">${getThumbHtml(p)}</div><div class="nc-body"><div class="nc-meta"><span class="nc-tag ${ti.cls}">${ti.label}</span><span class="nc-date">${getDate(p)}</span></div><div class="nc-title">${esc(p.title||p.ver||'패치노트')}</div><div class="nc-desc">${esc(getDesc(p))}</div></div></div>`}).join('');document.getElementById('pageInfo').textContent=`${curPage} / ${total}`;document.getElementById('prevBtn').disabled=curPage<=1;document.getElementById('nextBtn').disabled=curPage>=total;}
 window.setSearch=v=>{curSearch=v.toLowerCase().trim();curPage=1;renderGrid();};
 window.setFilter=(f,el)=>{document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');curPage=1;renderGrid();};
 window.changePage=d=>{curPage+=d;renderGrid();window.scrollTo({top:280,behavior:'smooth'});};
-window.openDetail=idx=>{const p=allPatches[idx];if(!p)return;const ti=getTagInfo(p.tags);const tag=document.getElementById('pmTag');tag.textContent=ti.label;tag.className='pm-tag nc-tag '+ti.cls;document.getElementById('pmDate').textContent=getDate(p);document.getElementById('pmTitle').textContent=p.title||p.ver||'패치노트';document.getElementById('pmVer').textContent=p.ver||'';const img=(p.blocks||[]).find(b=>b.type==='image')?.url||defaultThumbUrl;document.getElementById('pmThumbWrap').innerHTML=img?`<img src="${esc(img)}" style="width:100%;border-radius:16px;object-fit:cover;max-height:400px;border:1px solid rgba(255,255,255,.08)">`:'';const html=(p.blocks||[]).map(b=>{if(b.type==='text')return`<div>${typeof marked!=='undefined'?marked.parse(preprocessMarkdown(b.text||'')):'<p>'+esc(b.text||'')+'</p>'}</div>`;if(b.type==='image')return`<p><img src="${esc(b.url||'')}" onclick="openLightbox('${esc(b.url||'')}')"></p>`;if(b.type==='callout')return`<blockquote>${typeof marked!=='undefined'?marked.parse(preprocessMarkdown(b.text||'')):esc(b.text||'')}</blockquote>`;return'';}).join('')||'<p style="color:var(--mu)">내용이 없습니다.</p>';document.getElementById('pmContent').innerHTML=html;document.getElementById('pmPrevBtn').innerHTML=idx+1<allPatches.length?`<button style="padding:10px 22px;font-size:13px;border:none;cursor:pointer;background:rgba(255,255,255,.08);border-radius:100px;color:var(--mu2);font-family:inherit;font-weight:600" onclick="openDetail(${idx+1})">← 이전 소식</button>`:'';document.getElementById('patchModalOv').classList.add('open');document.body.style.overflow='hidden';};
+window.openDetail=idx=>{const p=allPatches[idx];if(!p)return;const ti=getTagInfo(p.tags);const tag=document.getElementById('pmTag');tag.textContent=ti.label;tag.className='pm-tag nc-tag '+ti.cls;document.getElementById('pmDate').textContent=getDate(p);document.getElementById('pmTitle').textContent=p.title||p.ver||'패치노트';document.getElementById('pmVer').textContent=p.ver||'';const img=(p.blocks||[]).find(b=>b.type==='image')?.url||defaultThumbUrl;document.getElementById('pmThumbWrap').innerHTML=img?`<img src="${esc(img)}" style="width:100%;border-radius:16px;object-fit:cover;max-height:400px;border:1px solid rgba(255,255,255,.08)">`:'';const html=(p.blocks||[]).map(b=>{if(b.type==='text')return`<div>${typeof marked!=='undefined'?marked.parse(preprocessMarkdown(b.text||'')):'<p>'+esc(b.text||'')+'</p>'}</div>`;if(b.type==='image')return`<p><img src="${esc(b.url||'')}" onclick="openLightbox('${esc(b.url||'')}')"></p>`;if(b.type==='callout')return`<blockquote>${typeof marked!=='undefined'?marked.parse(preprocessMarkdown(b.text||'')):esc(b.text||'')}</blockquote>`;return'';}).join('')||'<p style="color:var(--mu)">내용이 없습니다.</p>';document.getElementById('pmContent').innerHTML=html;document.getElementById('pmPrevBtn').innerHTML=idx+1<allPatches.length?`<button style="padding:10px 22px;font-size:13px;border:none;cursor:pointer;background:rgba(255,255,255,.08);border-radius:100px;color:var(--mu2);font-family:inherit;font-weight:600" onclick="openPatchModalFix(${idx+1})">← 이전 소식</button>`:'';document.getElementById('patchModalOv').classList.add('open');document.body.style.overflow='hidden';};
 window.closeDetail=()=>{document.getElementById('patchModalOv').classList.remove('open');document.body.style.overflow='';};
 window.openLightbox=src=>{document.getElementById('lightboxImg').src=src;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';};
 window.closeLightbox=()=>{document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';};
@@ -643,6 +655,48 @@ window.addEventListener('error', function(e){
     console.warn('[TurnCity] preprocessMarkdown fallback handled');
   }
 });
+</script>
+
+
+<script>
+/* Turn City prevent double patch modals */
+(function(){
+  function closeOldPatchModals(){
+    const oldIds = ['patchModalOv','patchPreviewModal'];
+    oldIds.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){
+        el.classList.remove('open');
+        el.style.display = 'none';
+        el.style.pointerEvents = 'none';
+      }
+    });
+  }
+
+  const runAfter = (fn)=>setTimeout(fn, 0);
+
+  const oldOpenPatchModalFix = window.openPatchModalFix;
+  window.openPatchModalFix = function(i){
+    closeOldPatchModals();
+    if(typeof oldOpenPatchModalFix === 'function') oldOpenPatchModalFix(i);
+    runAfter(closeOldPatchModals);
+  };
+
+  window.openDetail = function(i){
+    closeOldPatchModals();
+    if(typeof window.openPatchModalFix === 'function') window.openPatchModalFix(i);
+    runAfter(closeOldPatchModals);
+  };
+
+  window.closeDetail = function(){
+    closeOldPatchModals();
+    if(typeof window.closePatchModalFix === 'function') window.closePatchModalFix();
+  };
+
+  document.addEventListener('click', function(){
+    runAfter(closeOldPatchModals);
+  }, true);
+})();
 </script>
 
 </body>
