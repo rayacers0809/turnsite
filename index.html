@@ -516,10 +516,43 @@ section:last-of-type {
 .patch-content img{max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.1);margin:14px 0}
 .patchnoteCard{cursor:pointer!important;position:relative;z-index:3}
 
+
+/* YouTube / MP4 background support */
+#tcYoutubeBgFinal{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  z-index:0!important;
+  display:none;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  background:#030912;
+}
+#tcYoutubeBgFinal iframe{
+  position:absolute!important;
+  top:50%!important;
+  left:50%!important;
+  width:120vw!important;
+  height:67.5vw!important;
+  min-width:177.78vh!important;
+  min-height:100vh!important;
+  transform:translate(-50%,-50%)!important;
+  border:0!important;
+  pointer-events:none!important;
+}
+#tcYoutubeBgFinal.on{display:block!important}
+#tcVideoBgFinal.on{display:block!important}
+#tcVideoOverlayFinal.on{display:block!important}
+#bg.video-mode{display:none!important}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
 <body>
+
+<div id="tcYoutubeBgFinal"></div>
+
 
 <video id="tcVideoBgFinal" autoplay muted loop playsinline></video>
 <div id="tcVideoOverlayFinal"></div>
@@ -666,162 +699,7 @@ section:last-of-type {
 </script>
 
 
-<script>
-/* ===== TURN CITY CLEAN FINAL ASSETS JS ===== */
-(function(){
-  function $(id){ return document.getElementById(id); }
 
-  function safeHref(id, href){
-    const el = $(id);
-    if(el && href) el.href = href;
-  }
-
-  function safeText(id, text){
-    const el = $(id);
-    if(el) el.textContent = text;
-  }
-
-  function safeSrc(id, src){
-    const el = $(id);
-    if(el && src) el.src = src;
-  }
-
-  function ensureVideo(){
-    let v = $("tcVideoBgFinal");
-    if(!v){
-      v = document.createElement("video");
-      v.id = "tcVideoBgFinal";
-      v.autoplay = true;
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.setAttribute("autoplay", "");
-      v.setAttribute("muted", "");
-      v.setAttribute("loop", "");
-      v.setAttribute("playsinline", "");
-      document.body.prepend(v);
-    }
-    v.muted = true;
-    v.loop = true;
-    v.autoplay = true;
-    v.playsInline = true;
-    return v;
-  }
-
-  function ensureOverlay(){
-    let o = $("tcVideoOverlayFinal");
-    if(!o){
-      o = document.createElement("div");
-      o.id = "tcVideoOverlayFinal";
-      const v = $("tcVideoBgFinal");
-      if(v && v.nextSibling) document.body.insertBefore(o, v.nextSibling);
-      else document.body.prepend(o);
-    }
-    return o;
-  }
-
-  function setImageBg(url){
-    const bg = $("bg");
-    if(!bg) return;
-    bg.classList.remove("video-mode");
-    document.documentElement.style.setProperty("--custom-bg", url ? `url("${url}")` : "none");
-
-    const v = $("tcVideoBgFinal");
-    const o = $("tcVideoOverlayFinal");
-    if(v){
-      v.pause();
-      v.removeAttribute("src");
-      v.load();
-      v.classList.remove("on");
-    }
-    if(o) o.classList.remove("on");
-  }
-
-  async function setVideoBg(url){
-    if(!url) return false;
-
-    const bg = $("bg");
-    if(bg) bg.classList.add("video-mode");
-
-    const v = ensureVideo();
-    const o = ensureOverlay();
-
-    if(v.getAttribute("src") !== url){
-      v.setAttribute("src", url);
-      v.src = url;
-      v.load();
-    }
-
-    v.classList.add("on");
-    o.classList.add("on");
-
-    try{
-      await v.play();
-      console.log("[TurnCity] video background playing", url);
-    }catch(e){
-      console.warn("[TurnCity] video autoplay blocked or waiting", e);
-    }
-
-    return true;
-  }
-
-  async function loadAssets(){
-    try{
-      const res = await fetch("/api/assets?cb=" + Date.now(), { cache: "no-store" });
-      const a = await res.json();
-
-      if(a.iconUrl){
-        safeSrc("siteIcon", a.iconUrl);
-        const icon = $("siteIcon");
-        if(icon) icon.style.display = "block";
-      }
-
-      if(a.bgVideoUrl){
-        await setVideoBg(a.bgVideoUrl);
-      }else{
-        const img = Array.isArray(a.bgSlides) && a.bgSlides.length ? a.bgSlides[0] : a.defaultThumbUrl;
-        setImageBg(img || "");
-      }
-
-      console.log("[TurnCity] assets applied clean", a);
-    }catch(e){
-      console.warn("[TurnCity] assets load failed", e);
-    }
-  }
-
-  async function loadSettings(){
-    try{
-      const res = await fetch("/api/settings?cb=" + Date.now(), { cache: "no-store" });
-      const s = await res.json();
-
-      const discord = s.discordUrl || "https://discord.gg/2026turn";
-      const connect = s.connectUrl || "sv.dolp.kr";
-      const connectHref = "fivem://connect/" + connect.replace(/^connect\s+/i, "");
-
-      ["nav디스코드","hero디스코드","cta디스코드","foot디스코드","mob디스코드","footNotice"].forEach(id => safeHref(id, discord));
-      ["navConnect","heroConnect","ctaConnect"].forEach(id => safeHref(id, connectHref));
-      safeText("footAddress", "connect " + connect.replace(/^connect\s+/i, ""));
-
-      console.log("[TurnCity] settings applied clean", s);
-    }catch(e){
-      console.warn("[TurnCity] settings load failed", e);
-    }
-  }
-
-  function boot(){
-    loadAssets();
-    loadSettings();
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", boot);
-  }else{
-    boot();
-  }
-
-  setTimeout(loadAssets, 1200);
-})();
-</script>
 
 
 <script>
@@ -954,6 +832,247 @@ section:last-of-type {
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",loadPatches);
   else loadPatches();
+})();
+</script>
+
+
+<script>
+/* ===== TURN CITY CLEAN FINAL ASSETS JS - YOUTUBE/MP4 SUPPORT ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  function safeHref(id, href){
+    const el = $(id);
+    if(el && href) el.href = href;
+  }
+
+  function safeText(id, text){
+    const el = $(id);
+    if(el) el.textContent = text;
+  }
+
+  function safeSrc(id, src){
+    const el = $(id);
+    if(el && src) el.src = src;
+  }
+
+  function ensureVideo(){
+    let v = $("tcVideoBgFinal");
+    if(!v){
+      v = document.createElement("video");
+      v.id = "tcVideoBgFinal";
+      v.autoplay = true;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.setAttribute("autoplay", "");
+      v.setAttribute("muted", "");
+      v.setAttribute("loop", "");
+      v.setAttribute("playsinline", "");
+      document.body.prepend(v);
+    }
+    v.muted = true;
+    v.loop = true;
+    v.autoplay = true;
+    v.playsInline = true;
+    return v;
+  }
+
+  function ensureYoutube(){
+    let box = $("tcYoutubeBgFinal");
+    if(!box){
+      box = document.createElement("div");
+      box.id = "tcYoutubeBgFinal";
+      document.body.prepend(box);
+    }
+    return box;
+  }
+
+  function ensureOverlay(){
+    let o = $("tcVideoOverlayFinal");
+    if(!o){
+      o = document.createElement("div");
+      o.id = "tcVideoOverlayFinal";
+      const firstBg = $("tcYoutubeBgFinal") || $("tcVideoBgFinal");
+      if(firstBg && firstBg.nextSibling) document.body.insertBefore(o, firstBg.nextSibling);
+      else document.body.prepend(o);
+    }
+    return o;
+  }
+
+  function extractYoutubeId(url){
+    if(!url) return "";
+    try{
+      const u = new URL(url);
+      if(u.hostname.includes("youtu.be")){
+        return u.pathname.replace("/", "").split("/")[0];
+      }
+      if(u.hostname.includes("youtube.com")){
+        if(u.searchParams.get("v")) return u.searchParams.get("v");
+        const parts = u.pathname.split("/").filter(Boolean);
+        const embedIdx = parts.indexOf("embed");
+        if(embedIdx >= 0 && parts[embedIdx+1]) return parts[embedIdx+1];
+        const shortsIdx = parts.indexOf("shorts");
+        if(shortsIdx >= 0 && parts[shortsIdx+1]) return parts[shortsIdx+1];
+      }
+    }catch(e){}
+    return "";
+  }
+
+  function isYoutubeUrl(url){
+    return !!extractYoutubeId(url);
+  }
+
+  function isDirectVideoUrl(url){
+    return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(String(url||""));
+  }
+
+  function stopVideo(){
+    const v = $("tcVideoBgFinal");
+    if(v){
+      v.pause();
+      v.removeAttribute("src");
+      v.load();
+      v.classList.remove("on");
+    }
+  }
+
+  function stopYoutube(){
+    const y = $("tcYoutubeBgFinal");
+    if(y){
+      y.innerHTML = "";
+      y.classList.remove("on");
+    }
+  }
+
+  function setImageBg(url){
+    stopVideo();
+    stopYoutube();
+
+    const bg = $("bg");
+    const o = $("tcVideoOverlayFinal");
+    if(bg) bg.classList.remove("video-mode");
+    if(o) o.classList.remove("on");
+
+    document.documentElement.style.setProperty("--custom-bg", url ? `url("${url}")` : "none");
+  }
+
+  async function setDirectVideoBg(url){
+    if(!url) return false;
+
+    stopYoutube();
+
+    const bg = $("bg");
+    if(bg) bg.classList.add("video-mode");
+
+    const v = ensureVideo();
+    const o = ensureOverlay();
+
+    if(v.getAttribute("src") !== url){
+      v.setAttribute("src", url);
+      v.src = url;
+      v.load();
+    }
+
+    v.classList.add("on");
+    o.classList.add("on");
+
+    try{
+      await v.play();
+      console.log("[TurnCity] direct video background playing", url);
+    }catch(e){
+      console.warn("[TurnCity] direct video autoplay blocked or waiting", e);
+    }
+
+    return true;
+  }
+
+  function setYoutubeBg(url){
+    const id = extractYoutubeId(url);
+    if(!id) return false;
+
+    stopVideo();
+
+    const bg = $("bg");
+    if(bg) bg.classList.add("video-mode");
+
+    const y = ensureYoutube();
+    const o = ensureOverlay();
+
+    const src =
+      `https://www.youtube.com/embed/${id}` +
+      `?autoplay=1&mute=1&loop=1&playlist=${id}` +
+      `&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+
+    y.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    y.classList.add("on");
+    o.classList.add("on");
+
+    console.log("[TurnCity] youtube background applied", id);
+    return true;
+  }
+
+  async function loadAssets(){
+    try{
+      const res = await fetch("/api/assets?cb=" + Date.now(), { cache: "no-store" });
+      const a = await res.json();
+
+      if(a.iconUrl){
+        safeSrc("siteIcon", a.iconUrl);
+        const icon = $("siteIcon");
+        if(icon) icon.style.display = "block";
+      }
+
+      const videoUrl = String(a.bgVideoUrl || "").trim();
+
+      if(videoUrl){
+        if(isYoutubeUrl(videoUrl)){
+          setYoutubeBg(videoUrl);
+        }else{
+          await setDirectVideoBg(videoUrl);
+        }
+      }else{
+        const img = Array.isArray(a.bgSlides) && a.bgSlides.length ? a.bgSlides[0] : a.defaultThumbUrl;
+        setImageBg(img || "");
+      }
+
+      console.log("[TurnCity] assets applied clean yt/mp4", a);
+    }catch(e){
+      console.warn("[TurnCity] assets load failed", e);
+    }
+  }
+
+  async function loadSettings(){
+    try{
+      const res = await fetch("/api/settings?cb=" + Date.now(), { cache: "no-store" });
+      const s = await res.json();
+
+      const discord = s.discordUrl || "https://discord.gg/2026turn";
+      const connect = s.connectUrl || "sv.dolp.kr";
+      const connectHref = "fivem://connect/" + connect.replace(/^connect\s+/i, "");
+
+      ["nav디스코드","hero디스코드","cta디스코드","foot디스코드","mob디스코드","footNotice"].forEach(id => safeHref(id, discord));
+      ["navConnect","heroConnect","ctaConnect"].forEach(id => safeHref(id, connectHref));
+      safeText("footAddress", "connect " + connect.replace(/^connect\s+/i, ""));
+
+      console.log("[TurnCity] settings applied clean", s);
+    }catch(e){
+      console.warn("[TurnCity] settings load failed", e);
+    }
+  }
+
+  function boot(){
+    loadAssets();
+    loadSettings();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", boot);
+  }else{
+    boot();
+  }
+
+  setTimeout(loadAssets, 1200);
 })();
 </script>
 
