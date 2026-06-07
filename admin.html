@@ -163,14 +163,13 @@ input[type=file].inp{padding:11px}
   </div>
 
   <div class="card">
-   <div class="ct">배경 영상 업로드</div>
+   <div class="ct">배경 영상 URL</div>
    <video id="videoPrev" class="preview" muted loop playsinline controls style="height:170px"></video>
-   <input class="inp" id="videoFile" type="file" accept="video/mp4,video/webm,video/*">
-   <div class="sub">권장: MP4/WebM, 100~300MB 권장, 최대 500MB까지는 가능</div>
+   <input class="inp" id="videoUrl" placeholder="MP4 / WebM 영상 URL 입력">
+   <div class="sub">영상은 업로드하지 않고 링크만 저장됩니다. 권장: MP4/WebM 직접 링크</div>
    <div class="sub" id="videoUrlText">현재 배경 영상 없음</div>
-   <progress id="videoProgress" value="0" max="100" style="width:100%;display:none"></progress>
    <div class="actions">
-    <button class="btn primary" id="uploadVideoBtn">배경 영상 업로드/저장</button>
+    <button class="btn primary" id="saveVideoUrlBtn">영상 URL 저장</button>
     <button class="btn red" id="clearVideoBtn">배경 영상 제거</button>
    </div>
   </div>
@@ -418,8 +417,9 @@ window.tcAdmin={view,newPatch,savePatch,addBlock,init};
 </script>
 
 
+
 <script type="module">
-/* Turn City Firebase Storage asset upload */
+/* Turn City Firebase Storage image upload + video URL */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -436,7 +436,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-
 const $ = (id) => document.getElementById(id);
 
 function toast(msg){
@@ -479,8 +478,11 @@ function showProgress(id, pct){
   p.value = pct;
 }
 
-async function uploadFile(file, folder, progressId){
-  if(!file) throw new Error("파일을 선택하세요.");
+async function uploadImageFile(file, folder, progressId){
+  if(!file) throw new Error("이미지 파일을 선택하세요.");
+  if(!String(file.type || "").startsWith("image/")){
+    throw new Error("이미지 파일만 업로드 가능합니다.");
+  }
 
   const safeExt = extOf(file);
   const path = `turn-city/${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${safeExt}`;
@@ -488,7 +490,7 @@ async function uploadFile(file, folder, progressId){
 
   return await new Promise((resolve, reject)=>{
     const task = uploadBytesResumable(storageRef, file, {
-      contentType: file.type || "application/octet-stream"
+      contentType: file.type || "image/png"
     });
 
     task.on("state_changed",
@@ -526,6 +528,7 @@ function applyPreview(){
       $("bgInterval").value = a.bgInterval;
     }
     if(a.bgVideoUrl){
+      $("videoUrl").value = a.bgVideoUrl;
       $("videoPrev").src = a.bgVideoUrl;
       $("videoPrev").style.display = "block";
       $("videoUrlText").textContent = a.bgVideoUrl;
@@ -538,32 +541,23 @@ async function uploadAndSave(kind){
     const assets = await getAssets();
 
     if(kind === "icon"){
-      const url = await uploadFile($("iconFile").files[0], "icons", "iconProgress");
+      const url = await uploadImageFile($("iconFile").files[0], "icons", "iconProgress");
       assets.iconUrl = url;
     }
 
     if(kind === "thumb"){
-      const url = await uploadFile($("thumbFile").files[0], "thumbs", "thumbProgress");
+      const url = await uploadImageFile($("thumbFile").files[0], "thumbs", "thumbProgress");
       assets.defaultThumbUrl = url;
     }
 
     if(kind === "bg"){
-      const url = await uploadFile($("bgFile").files[0], "backgrounds", "bgProgress");
+      const url = await uploadImageFile($("bgFile").files[0], "backgrounds", "bgProgress");
       assets.bgSlides = [url];
       assets.bgInterval = Number($("bgInterval").value || 6);
     }
 
-    if(kind === "video"){
-      const file = $("videoFile").files[0];
-      if(file && file.size > 500 * 1024 * 1024){
-        throw new Error("영상 용량이 500MB를 초과했습니다.");
-      }
-      const url = await uploadFile(file, "videos", "videoProgress");
-      assets.bgVideoUrl = url;
-    }
-
     await saveAssets(assets);
-    toast("업로드 및 저장 완료");
+    toast("이미지 업로드 및 저장 완료");
     applyPreview();
   }catch(e){
     console.error(e);
@@ -571,25 +565,45 @@ async function uploadAndSave(kind){
   }
 }
 
-async function clearVideo(){
+async function saveVideoUrl(){
   try{
+    const url = $("videoUrl").value.trim();
+    if(url && !/^https?:\/\//i.test(url)){
+      throw new Error("영상 URL은 http 또는 https로 시작해야 합니다.");
+    }
+
     const assets = await getAssets();
-    assets.bgVideoUrl = "";
+    assets.bgVideoUrl = url;
+
     await saveAssets(assets);
-    $("videoPrev").removeAttribute("src");
-    $("videoPrev").style.display = "none";
-    $("videoUrlText").textContent = "현재 배경 영상 없음";
-    toast("배경 영상 제거 완료");
+
+    if(url){
+      $("videoPrev").src = url;
+      $("videoPrev").style.display = "block";
+      $("videoUrlText").textContent = url;
+    }else{
+      $("videoPrev").removeAttribute("src");
+      $("videoPrev").style.display = "none";
+      $("videoUrlText").textContent = "현재 배경 영상 없음";
+    }
+
+    toast("영상 URL 저장 완료");
   }catch(e){
-    toast(e.message || "제거 실패");
+    console.error(e);
+    toast(e.message || "저장 실패");
   }
+}
+
+async function clearVideo(){
+  $("videoUrl").value = "";
+  await saveVideoUrl();
 }
 
 function bind(){
   $("uploadIconBtn")?.addEventListener("click", ()=>uploadAndSave("icon"));
   $("uploadThumbBtn")?.addEventListener("click", ()=>uploadAndSave("thumb"));
   $("uploadBgBtn")?.addEventListener("click", ()=>uploadAndSave("bg"));
-  $("uploadVideoBtn")?.addEventListener("click", ()=>uploadAndSave("video"));
+  $("saveVideoUrlBtn")?.addEventListener("click", saveVideoUrl);
   $("clearVideoBtn")?.addEventListener("click", clearVideo);
 
   $("iconFile")?.addEventListener("change", e=>{
@@ -604,9 +618,12 @@ function bind(){
     const f = e.target.files[0];
     if(f){ $("bgPrev").src = URL.createObjectURL(f); $("bgPrev").style.display = "block"; }
   });
-  $("videoFile")?.addEventListener("change", e=>{
-    const f = e.target.files[0];
-    if(f){ $("videoPrev").src = URL.createObjectURL(f); $("videoPrev").style.display = "block"; }
+  $("videoUrl")?.addEventListener("input", e=>{
+    const url = e.target.value.trim();
+    if(url){
+      $("videoPrev").src = url;
+      $("videoPrev").style.display = "block";
+    }
   });
 }
 
@@ -617,6 +634,7 @@ if(document.readyState === "loading"){
   applyPreview();
 }
 </script>
+
 
 </body>
 </html>
