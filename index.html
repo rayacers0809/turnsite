@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turn City | 공식 홈페이지</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Turn City | 공식 홈페이지" />
+  <meta property="og:description" content="새로운 도시, 새로운 선택. Turn City에서 당신의 이야기를 시작하세요." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#2f7dff" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--blue:#2f7dff;--sky:#41d6ff;--navy:#07111f;--navy2:#0a1829;--card:rgba(14,28,48,.78);--card2:rgba(9,20,36,.86);--line:rgba(255,255,255,.1);--line2:rgba(80,170,255,.32);--txt:rgba(255,255,255,.92);--muted:rgba(255,255,255,.58);--muted2:rgba(255,255,255,.72);--grad:linear-gradient(135deg,var(--blue),var(--sky));--shadow:0 24px 80px rgba(0,0,0,.38)}
+    html{scroll-behavior:smooth} body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);color:var(--txt);overflow-x:hidden;min-height:100vh} a{color:inherit;text-decoration:none} button,input,textarea{font-family:inherit}
+    #bg{position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 18% 18%,rgba(47,125,255,.36),transparent 28%),radial-gradient(circle at 82% 5%,rgba(65,214,255,.24),transparent 25%),linear-gradient(180deg,#06101e,#07111f 55%,#030912)}
+    #bg::before{content:"";position:absolute;inset:0;background-image:var(--custom-bg);background-size:cover;background-position:center;opacity:.32;filter:saturate(1.1)}
+    #bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(2,8,16,.36),rgba(2,8,16,.78) 70%,#030912),linear-gradient(90deg,rgba(47,125,255,.12) 1px,transparent 1px),linear-gradient(rgba(47,125,255,.08) 1px,transparent 1px);background-size:auto,72px 72px,72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+    .orb{position:fixed;border-radius:999px;filter:blur(46px);opacity:.34;z-index:-2}.orb.a{width:340px;height:340px;background:#2f7dff;left:-120px;top:180px}.orb.b{width:280px;height:280px;background:#41d6ff;right:-120px;bottom:90px}
+    nav{position:fixed;top:0;left:0;right:0;z-index:50;height:72px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;background:rgba(3,9,18,.7);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-family:Outfit,sans-serif;letter-spacing:.02em}.brand img{width:38px;height:38px;border-radius:12px;object-fit:cover;display:none}.brand span{font-size:20px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.navlinks{display:flex;gap:4px;list-style:none}.navlinks a{display:block;padding:9px 14px;border-radius:999px;color:var(--muted2);font-size:13.5px;font-weight:700}.navlinks a:hover{background:rgba(255,255,255,.07);color:#fff}.navright{display:flex;align-items:center;justify-content:flex-end;gap:10px}.pillbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--line2);background:rgba(47,125,255,.14);font-size:13px;font-weight:800}.pillbtn.primary{background:var(--grad);border:none;color:white;box-shadow:0 12px 30px rgba(47,125,255,.32)}.menu{display:none;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:white;font-size:20px}
+    .mobile{display:none;position:fixed;top:72px;left:0;right:0;z-index:49;padding:12px 16px;background:rgba(3,9,18,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.mobile.open{display:block}.mobile a{display:block;padding:13px 14px;border-radius:12px;color:var(--muted2);font-weight:700}.mobile a:hover{background:rgba(47,125,255,.12);color:#fff}
+    .hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:130px 22px 80px;position:relative}.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:rgba(47,125,255,.12);border:1px solid var(--line2);color:#9cc8ff;font-size:12px;font-weight:800;letter-spacing:.08em;margin-bottom:24px}.dot{width:7px;height:7px;border-radius:999px;background:var(--sky);box-shadow:0 0 0 7px rgba(65,214,255,.12);animation:pulse 2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(65,214,255,0)}}
+    h1{font-family:Outfit,'Noto Sans KR',sans-serif;font-size:clamp(42px,7vw,92px);line-height:1.02;letter-spacing:-.055em;font-weight:900;text-shadow:0 12px 55px rgba(0,0,0,.5)}h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.sub{max-width:620px;margin:24px auto 0;color:var(--muted2);line-height:1.85;font-size:16px}.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:38px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 28px;border-radius:999px;font-weight:900;font-size:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);transition:.18s}.btn:hover{transform:translateY(-2px);border-color:var(--line2)}.btn.main{background:var(--grad);border:0;box-shadow:0 16px 40px rgba(47,125,255,.36)}
+    .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:760px;margin:52px auto 0}.stat{background:rgba(9,20,36,.68);border:1px solid var(--line);border-radius:20px;padding:18px 18px;backdrop-filter:blur(14px)}.stat b{font-family:Outfit,sans-serif;font-size:25px}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-weight:700}
+    section{position:relative}.wrap{max-width:1180px;margin:0 auto;padding:86px 34px}.head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:28px}.title{font-family:Outfit,sans-serif;font-size:30px;font-weight:900;letter-spacing:-.03em}.desc{color:var(--muted);font-size:13px;margin-top:6px}.more{color:#93c6ff;font-size:13px;font-weight:800}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 14px 44px rgba(0,0,0,.18);backdrop-filter:blur(16px);transition:.18s}.card:hover{transform:translateY(-4px);border-color:var(--line2)}.ico{width:46px;height:46px;border-radius:16px;background:rgba(47,125,255,.14);display:grid;place-items:center;font-size:24px;margin-bottom:18px}.card h3{font-size:18px;margin-bottom:10px}.card p{color:var(--muted);line-height:1.75;font-size:13.5px}
+    .statusBox{display:grid;grid-template-columns:340px 1fr;gap:18px}.serverPanel{background:linear-gradient(180deg,rgba(47,125,255,.16),rgba(9,20,36,.82));border:1px solid var(--line2);border-radius:28px;padding:28px;box-shadow:var(--shadow)}.serverState{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.26);color:#73f2a1;font-weight:900;font-size:12px}.serverState.off{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.24);color:#ff9a9a}.count{font-family:Outfit,sans-serif;font-size:58px;font-weight:900;margin-top:22px}.serverPanel p{color:var(--muted);line-height:1.75}.copy{margin-top:18px;width:100%;padding:13px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font-weight:900;cursor:pointer}.players{background:var(--card2);border:1px solid var(--line);border-radius:28px;padding:22px;min-height:360px}.playerTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.search{width:230px;max-width:50%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:white;outline:none}.playerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-height:520px;overflow:auto;padding-right:4px}.player{display:flex;align-items:center;gap:11px;padding:12px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)}.avatar{width:36px;height:36px;border-radius:12px;background:var(--grad);display:grid;place-items:center;font-weight:900}.pname{font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pid{color:var(--muted);font-size:11px;margin-top:2px}.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:44px 10px}
+    .news{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.bigNews{min-height:330px;border-radius:28px;padding:28px;background:linear-gradient(135deg,rgba(47,125,255,.26),rgba(65,214,255,.08)),var(--card2);border:1px solid var(--line2);display:flex;flex-direction:column;justify-content:flex-end}.tag{display:inline-flex;width:max-content;padding:5px 10px;border-radius:999px;background:rgba(65,214,255,.14);color:#aeeaff;font-size:11px;font-weight:900;margin-bottom:10px}.bigNews h3{font-size:30px;margin-bottom:10px}.bigNews p,.mini p{color:var(--muted);line-height:1.7}.miniList{display:grid;gap:12px}.mini{padding:20px;border-radius:22px;background:var(--card);border:1px solid var(--line)}
+    .guide{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.step{padding:22px;border-radius:22px;background:rgba(255,255,255,.045);border:1px solid var(--line)}.num{font-family:Outfit,sans-serif;color:#78b6ff;font-size:26px;font-weight:900}.step b{display:block;margin:8px 0}.step span{color:var(--muted);font-size:13px;line-height:1.65}
+    .cta{margin:40px auto 0;max-width:1040px;border-radius:34px;padding:54px 28px;text-align:center;background:linear-gradient(135deg,rgba(47,125,255,.24),rgba(65,214,255,.10));border:1px solid var(--line2);box-shadow:var(--shadow)}.cta h2{font-family:Outfit,sans-serif;font-size:38px;letter-spacing:-.04em}.cta p{color:var(--muted2);margin:13px auto 26px;line-height:1.75;max-width:620px}
+    footer{border-top:1px solid var(--line);background:rgba(2,7,13,.82);margin-top:60px}.foot{max-width:1180px;margin:0 auto;padding:42px 34px;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:26px}.foot b{font-family:Outfit,sans-serif;color:#fff}.foot p,.foot a{display:block;color:rgba(255,255,255,.45);font-size:12.5px;line-height:1.9;margin-top:8px}.copyr{border-top:1px solid var(--line);max-width:1180px;margin:0 auto;padding:18px 34px;color:rgba(255,255,255,.28);font-size:11px}
+    .adminFab{position:fixed;right:20px;bottom:20px;z-index:70;width:48px;height:48px;border:1px solid var(--line2);background:rgba(47,125,255,.86);color:#fff;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.35);cursor:pointer;font-size:20px}.admin{display:none;position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.62);backdrop-filter:blur(10px);padding:22px;overflow:auto}.admin.open{display:block}.adminBox{max-width:760px;margin:30px auto;background:#07111f;border:1px solid var(--line2);border-radius:24px;padding:24px}.adminBox h2{margin-bottom:14px}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-bottom:6px}.field input,.field textarea{width:100%;padding:12px 13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:white;outline:none}.field.full{grid-column:1/-1}.adminActions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}.hide{display:none!important}
+    @media(max-width:920px){nav{grid-template-columns:1fr auto;padding:0 18px}.navlinks,.navright{display:none}.menu{display:block}.hero-stats,.grid3,.playerGrid{grid-template-columns:1fr 1fr}.statusBox,.news,.foot{grid-template-columns:1fr}.guide{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){h1{font-size:40px}.hero-stats,.grid3,.playerGrid,.guide,.form{grid-template-columns:1fr}.wrap{padding:58px 16px}.head{display:block}.search{max-width:none;width:100%;margin-top:12px}.actions{flex-direction:column}.btn{width:100%}.foot{padding:34px 18px}.copyr{padding:16px 18px}.hero{padding-top:110px}}
+  
+
+
+
+/* Turn City patchnote preview cards */
+.patch-card-click{cursor:pointer}
+.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patch-modal.open{display:flex}
+.patch-modal-box{width:min(820px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.96);border:1px solid var(--line2);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
+.patch-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)}
+.patch-modal-head b{font-size:18px}
+.patch-modal-close{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}
+.patch-modal-body{padding:24px}
+.patch-meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-bottom:16px}
+.patch-tag{display:inline-flex;padding:5px 10px;border-radius:999px;background:rgba(47,125,255,.14);border:1px solid rgba(80,170,255,.25);color:#9cc8ff;font-weight:900;font-size:11px}
+.patch-content{color:var(--muted2);font-size:14.5px;line-height:1.85;word-break:break-word}
+.patch-content h1,.patch-content h2,.patch-content h3{color:#fff;margin:24px 0 12px;line-height:1.3}
+.patch-content h1{font-size:27px}.patch-content h2{font-size:22px;padding-bottom:8px;border-bottom:1px solid var(--line)}.patch-content h3{font-size:18px}
+.patch-content p{margin:10px 0}.patch-content ul,.patch-content ol{padding-left:22px;margin:10px 0;display:flex;flex-direction:column;gap:5px}.patch-content li{line-height:1.8}
+.patch-content blockquote{margin:14px 0;padding:12px 18px;border-left:4px solid var(--blue);background:rgba(47,125,255,.08);border-radius:0 10px 10px 0;color:rgba(255,255,255,.78)}
+.patch-content code{background:rgba(255,255,255,.09);border:1px solid var(--line);padding:2px 6px;border-radius:6px;color:#aeeaff}
+.patch-content pre{background:rgba(0,0,0,.32);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;margin:14px 0}.patch-content pre code{background:none;border:0;padding:0}
+.patch-content img{max-width:100%;border-radius:14px;border:1px solid var(--line);margin:14px 0}
+.patch-content table{width:100%;border-collapse:collapse;margin:14px 0}.patch-content th,.patch-content td{border:1px solid var(--line);padding:9px 12px}.patch-content th{background:rgba(255,255,255,.07);color:#fff}
+.patch-callout{margin:14px 0;padding:14px 16px;border-radius:13px;border-left:4px solid var(--blue);background:rgba(47,125,255,.08)}
+.patch-callout.warning{border-left-color:#fb923c;background:rgba(251,146,60,.09)}
+.patch-callout.success,.patch-callout.tip{border-left-color:#4ade80;background:rgba(74,222,128,.09)}
+.patch-callout.danger{border-left-color:#f87171;background:rgba(248,113,113,.09)}
+.patch-callout.info{border-left-color:#38bdf8;background:rgba(56,189,248,.09)}
+
+
+/* Main patchnote cards */
+.patchnoteGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+.patchnoteCard{
+  overflow:hidden;
+  border-radius:20px;
+  background:rgba(14,18,28,.88);
+  border:1px solid var(--line);
+  box-shadow:0 18px 55px rgba(0,0,0,.34);
+  cursor:pointer;
+  transition:.18s;
+}
+.patchnoteCard:hover{
+  transform:translateY(-5px);
+  border-color:var(--line2);
+}
+.patchnoteThumb{
+  aspect-ratio:16/8.6;
+  background:linear-gradient(135deg,rgba(47,125,255,.22),rgba(65,214,255,.10));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.patchnoteThumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.patchnoteThumbPh{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  color:#9cc8ff;
+  font-size:42px;
+  opacity:.6;
+}
+.patchnoteBody{
+  padding:20px 22px 24px;
+}
+.patchnoteTag{
+  display:inline-flex;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(47,125,255,.16);
+  color:#9cc8ff;
+  font-size:11px;
+  font-weight:900;
+  margin-bottom:12px;
+}
+.patchnoteTag.new{background:rgba(74,222,128,.16);color:#6ef2a1}
+.patchnoteTag.fix{background:rgba(251,146,60,.16);color:#ffb06a}
+.patchnoteTag.change{background:rgba(65,214,255,.16);color:#8beaff}
+.patchnoteTag.remove{background:rgba(248,113,113,.16);color:#ff9a9a}
+.patchnoteDate{
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:8px;
+}
+.patchnoteTitle{
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:10px;
+  line-height:1.35;
+}
+.patchnoteDesc{
+  color:var(--muted2);
+  font-size:13px;
+  line-height:1.75;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.patchnoteLoading{
+  grid-column:1/-1;
+  color:var(--muted);
+  text-align:center;
+  padding:40px;
+  background:rgba(14,28,48,.5);
+  border:1px solid var(--line);
+  border-radius:20px;
+}
+.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patch-modal.open{display:flex}
+.patch-modal-box{width:min(820px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.96);border:1px solid var(--line2);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
+.patch-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)}
+.patch-modal-head b{font-size:18px}
+.patch-modal-close{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}
+.patch-modal-body{padding:24px}
+.patch-meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-bottom:16px}
+.patch-content{color:var(--muted2);font-size:14.5px;line-height:1.85;word-break:break-word}
+.patch-content h1,.patch-content h2,.patch-content h3{color:#fff;margin:24px 0 12px;line-height:1.3}
+.patch-content h1{font-size:27px}.patch-content h2{font-size:22px;padding-bottom:8px;border-bottom:1px solid var(--line)}.patch-content h3{font-size:18px}
+.patch-content p{margin:10px 0}.patch-content ul,.patch-content ol{padding-left:22px;margin:10px 0;display:flex;flex-direction:column;gap:5px}.patch-content li{line-height:1.8}
+.patch-content blockquote{margin:14px 0;padding:12px 18px;border-left:4px solid var(--blue);background:rgba(47,125,255,.08);border-radius:0 10px 10px 0;color:rgba(255,255,255,.78)}
+.patch-content code{background:rgba(255,255,255,.09);border:1px solid var(--line);padding:2px 6px;border-radius:6px;color:#aeeaff}
+.patch-content pre{background:rgba(0,0,0,.32);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;margin:14px 0}.patch-content pre code{background:none;border:0;padding:0}
+.patch-content img{max-width:100%;border-radius:14px;border:1px solid var(--line);margin:14px 0}
+.patch-callout{margin:14px 0;padding:14px 16px;border-radius:13px;border-left:4px solid var(--blue);background:rgba(47,125,255,.08)}
+.patch-callout.warning{border-left-color:#fb923c;background:rgba(251,146,60,.09)}
+.patch-callout.success,.patch-callout.tip{border-left-color:#4ade80;background:rgba(74,222,128,.09)}
+.patch-callout.danger{border-left-color:#f87171;background:rgba(248,113,113,.09)}
+.patch-callout.info{border-left-color:#38bdf8;background:rgba(56,189,248,.09)}
+@media(max-width:920px){.patchnoteGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.patchnoteGrid{grid-template-columns:1fr}}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+</head>
+<body>
+  <div id="bg"></div><div class="orb a"></div><div class="orb b"></div>
+  <nav><a class="brand" href="#home"><img id="siteIcon" alt="Turn City"><span>TURN CITY</span></a><ul class="navlinks"><li><a href="patchnote.html">패치노트</a></li><li><a href="#feature"></a></li><li><a href="#guide">시작가이드</a></li></ul><button class="menu" onclick="toggleMenu()">☰</button><div class="navright"><a id="nav디스코드" class="pillbtn" target="_blank">디스코드</a><a id="navConnect" class="pillbtn primary">게임 시작</a></div></nav>
+  <div class="mobile" id="mobile"><a href="#status"></a><a href="patchnote.html">패치노트</a><a href="#feature"></a><a href="#guide">시작가이드</a><a id="mob디스코드" target="_blank">디스코드 참여</a></div>
+  <section class="hero" id="home"><div><div class="eyebrow"><span class="dot"></span>TURN CITY OFFICIAL</div><h1>새로운 도시,<br><em>Turn City</em>에서<br>당신의 차례가 시작됩니다</h1><p class="sub">현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.</p><div class="actions"><a id="heroConnect" class="btn main">게임 접속하기</a><a id="hero디스코드" class="btn" target="_blank">디스코드 참여하기</a><a class="btn" href="patchnote.html">패치노트 보기</a></div><div class="hero-stats">
+  <div class="stat"><b>PATCH</b><span>최신 패치노트</span></div>
+  <div class="stat"><b>RP</b><span>Turn City Roleplay</span></div>
+  <div class="stat"><b>24H</b><span>언제든 시작</span></div>
+</div></div></section>
+
+  <section id="news">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <div class="title">패치노트</div>
+          <div class="desc">Turn City의 최신 업데이트 내역</div>
+        </div>
+        <a class="more" href="patchnote.html">전체보기 →</a>
+      </div>
+      <div class="patchnoteGrid" id="mainPatchnoteGrid">
+        <div class="patchnoteLoading">패치노트를 불러오는 중...</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="guide"><div class="wrap"><div class="head"><div><div class="title">시작 가이드</div><div class="desc">처음 오는 유저도 바로 시작할 수 있게 4단계로 정리했습니다.</div></div></div><div class="guide"><div class="step"><div class="num">01</div><b>디스코드 참여</b><span>공지와 규칙을 먼저 확인합니다.</span></div><div class="step"><div class="num">02</div><b>서버 접속</b><span>connect 주소 또는 게임 시작 버튼으로 입장합니다.</span></div><div class="step"><div class="num">03</div><b>캐릭터 생성</b><span>나만의 직업을 선택합니다.</span></div><div class="step"><div class="num">04</div><b>도시 생활 시작</b><span>유저들과 함께 Turn City RP를 즐깁니다.</span></div></div><div class="cta"><h2>Turn City에 합류할 시간</h2><p>Turn City에서 당신을 기다리고 있습니다</p><div class="actions"><a id="ctaConnect" class="btn main">게임 시작</a><a id="cta디스코드" class="btn" target="_blank">DISCORD</a></div></div></div></section>
+  
+</div>
+
+
+<div class="patch-modal" id="patchPreviewModal" onclick="if(event.target===this)closePatchPreview()">
+  <div class="patch-modal-box">
+    <div class="patch-modal-head">
+      <b id="patchPreviewTitle">패치노트</b>
+      <button class="patch-modal-close" onclick="closePatchPreview()">✕</button>
+    </div>
+    <div class="patch-modal-body" id="patchPreviewBody"></div>
+  </div>
+</div>
+
+<footer><div class="foot"><div><b>TURN CITY</b><p>새로운 도시, 새로운 선택. Turn City 공식 홈페이지입니다.</p></div><div><b>MENU</b></a><a href="patchnote.html">패치노트</a><a href="#guide">가이드</a></div><div><b>COMMUNITY</b><a id="foot디스코드" target="_blank">디스코드</a><a id="footNotice" target="_blank">공지 채널</a></div><div><b>SERVER</b><p id="footAddress">connect 주소 준비중</p></div></div><div class="copyr">© 2026 Turn City. All rights reserved.</div></footer>
+  <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="sv.dolp.kr"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
+  <script>
+    const DEFAULT={discord:'https://discord.gg/2026turn',connect:'',api:'',notice:'https://discord.gg/2026turn',icon:'',bg:'',hero:'현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.'};
+    let cfg={...DEFAULT,...JSON.parse(localStorage.getItem('turn_city_config')||'{}')};let players=[];
+    const $=id=>document.getElementById(id);
+    function applyCfg(){document.documentElement.style.setProperty('--custom-bg',cfg.bg?`url("${cfg.bg}")`:'none');['nav디스코드','hero디스코드','cta디스코드','foot디스코드','mob디스코드'].forEach(id=>$(id).href=cfg.discord);['newsMore','footNotice'].forEach(id=>$(id).href=cfg.notice||cfg.discord);const connectHref=cfg.connect?`fivem://connect/${cfg.connect.replace(/^connect\s+/,'')}`:'#';['navConnect','heroConnect','ctaConnect'].forEach(id=>{$(id).href=connectHref});$('copyAddress').textContent=cfg.connect?`connect ${cfg.connect.replace(/^connect\s+/,'')}`:'서버 주소 준비중';$('footAddress').textContent=cfg.connect?`connect ${cfg.connect.replace(/^connect\s+/,'')}`:'connect 주소 준비중';document.querySelector('.sub').textContent=cfg.hero||DEFAULT.hero;if(cfg.icon){$('siteIcon').src=cfg.icon;$('siteIcon').style.display='block'}else{$('siteIcon').style.display='none'}}
+    function toggleMenu(){ $('mobile').classList.toggle('open') } function openAdmin(){['디스코드','Connect','Api','Notice','Icon','Bg','Hero'].forEach(k=>{$('cfg'+k).value=cfg[k.toLowerCase()]||''});$('admin').classList.add('open')} function closeAdmin(){$('admin').classList.remove('open')} function saveAdmin(){cfg={discord:$('cfg디스코드').value||DEFAULT.discord,connect:$('cfgConnect').value,api:$('cfgApi').value,notice:$('cfgNotice').value||$('cfg디스코드').value||DEFAULT.discord,icon:$('cfgIcon').value,bg:$('cfgBg').value,hero:$('cfgHero').value||DEFAULT.hero};localStorage.setItem('turn_city_config',JSON.stringify(cfg));applyCfg();refreshPlayers();closeAdmin()}
+    function copyAddr(){if(!cfg.connect)return;const text='connect '+cfg.connect.replace(/^connect\s+/,'');navigator.clipboard?.writeText(text);$('copyAddress').textContent='복사 완료!';setTimeout(()=>applyCfg(),1200)}
+    function setStatus(ok,count){$('serverState').className='serverState'+(ok?'':' off');$('serverState').innerHTML='<span class="dot"></span>'+(ok?'온라인':'오프라인');$('statStatus').textContent=ok?'ONLINE':'OFF';$('bigCount').textContent=count??'—';$('statPlayers').textContent=count??'—';$('serverText').textContent=ok?'현재 Turn City 서버 접속 정보를 정상적으로 불러왔습니다.':'서버 정보를 불러오지 못했습니다. 관리자 패널에서 API 주소를 확인하세요.'}
+    async function refreshPlayers(){if(!cfg.api){players=[{id:1,name:'패치노트'},{id:2,name:'API 연결 대기중'},{id:3,name:'관리자 패널에서 서버 API 입력'}];setStatus(true,players.length);renderPlayers();return}try{const r=await fetch(cfg.api,{cache:'no-store'});const data=await r.json();players=(Array.isArray(data)?data:(data.players||[])).map((p,i)=>({id:p.id??p.source??p.endpoint??i+1,name:p.name||p.nickname||p.playerName||'Unknown'}));setStatus(true,players.length);renderPlayers()}catch(e){players=[];setStatus(false,'—');renderPlayers('접속자 정보를 불러오지 못했습니다.')}}
+    function renderPlayers(msg){const q=($('search').value||'').toLowerCase();const list=players.filter(p=>(p.name+' '+p.id).toLowerCase().includes(q));$('playerGrid').innerHTML=msg?`<div class="empty">${msg}</div>`:list.length?list.map(p=>`<div class="player"><div class="avatar">${String(p.name).trim().charAt(0)||'U'}</div><div><div class="pname">${escapeHtml(p.name)}</div><div class="pid">ID: ${escapeHtml(String(p.id))}</div></div></div>`).join(''):'<div class="empty">표시할 유저가 없습니다.</div>'}
+    function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+    applyCfg();refreshPlayers();setInterval(refreshPlayers,30000);document.querySelectorAll('.mobile a').forEach(a=>a.addEventListener('click',()=>$('mobile').classList.remove('open')));
+  </script>
+
+
+
+
+
+
+
+<script>
+const TC_PATCH_CACHE='turncity_main_patch_cards_v2';
+let TC_PATCHES=[];
+function tcEsc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function tcTagObj(tags){
+  const t=(tags||[])[0]||'patch';
+  return {key:t,label:({new:'신규',fix:'버그수정',change:'변경',remove:'삭제',patch:'패치노트'})[t]||'패치노트'};
+}
+function tcDate(p){if(p.createdAt?.seconds)return new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR');return p.date||'';}
+function tcDesc(p){const b=(p.blocks||[]).find(x=>x.type==='text');return (b?.text||'').replace(/[#*_>`\[\]~\-]/g,'').replace(/\s+/g,' ').slice(0,115)||'클릭해서 자세히 보기';}
+function tcThumb(p){const img=(p.blocks||[]).find(x=>x.type==='image')?.url;return img?`<img src="${tcEsc(img)}" alt="">`:`<div class="patchnoteThumbPh">🏙️</div>`;}
+function preprocessMarkdown(md){return String(md||'').replace(/:::([a-zA-Z가-힣]+)\n([\s\S]*?):::/g,(m,type,body)=>`<div class="patch-callout ${type.toLowerCase()}">${typeof marked!=='undefined'?marked.parse(body.trim()):tcEsc(body)}</div>`);}
+function renderMarkdown(md){return typeof marked!=='undefined'?marked.parse(preprocessMarkdown(md)):('<p>'+tcEsc(md)+'</p>');}
+function patchHtml(p){
+  const blocks=p.blocks||[];
+  const html=blocks.map(b=>{
+    if(b.type==='text')return `<div>${renderMarkdown(b.text||'')}</div>`;
+    if(b.type==='image')return `<img src="${tcEsc(b.url||'')}" alt="">`;
+    if(b.type==='callout')return `<div class="patch-callout ${tcEsc(b.callout_type||'info')}">${renderMarkdown(b.text||'')}</div>`;
+    return '';
+  }).join('') || '<p>내용이 없습니다.</p>';
+  const tag=tcTagObj(p.tags);
+  return `<div class="patch-meta"><span class="patchnoteTag ${tag.key}">${tag.label}</span><span>${tcEsc(tcDate(p))}</span></div><div class="patch-content">${html}</div>`;
+}
+function openPatchPreview(i){
+  const p=TC_PATCHES[i]; if(!p)return;
+  document.getElementById('patchPreviewTitle').textContent=p.title||p.ver||'패치노트';
+  document.getElementById('patchPreviewBody').innerHTML=patchHtml(p);
+  document.getElementById('patchPreviewModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePatchPreview(){document.getElementById('patchPreviewModal').classList.remove('open');document.body.style.overflow='';}
+function renderMainPatchnotes(list){
+  TC_PATCHES=list.slice(0,3);
+  const grid=document.getElementById('mainPatchnoteGrid');
+  if(!grid)return;
+  if(!TC_PATCHES.length){
+    grid.innerHTML='<div class="patchnoteLoading">등록된 패치노트가 없습니다.</div>';
+    return;
+  }
+  grid.innerHTML=TC_PATCHES.map((p,i)=>{
+    const tag=tcTagObj(p.tags);
+    return `<article class="patchnoteCard" onclick="openPatchPreview(${i})">
+      <div class="patchnoteThumb">${tcThumb(p)}</div>
+      <div class="patchnoteBody">
+        <span class="patchnoteTag ${tag.key}">${tag.label}</span>
+        <div class="patchnoteDate">${tcEsc(tcDate(p))}</div>
+        <div class="patchnoteTitle">${tcEsc(p.title||p.ver||'패치노트')}</div>
+        <div class="patchnoteDesc">${tcEsc(tcDesc(p))}</div>
+      </div>
+    </article>`;
+  }).join('');
+}
+async function loadMainPatchnotes(){
+  try{const c=JSON.parse(localStorage.getItem(TC_PATCH_CACHE)||'null');if(c&&Date.now()-c.ts<60000&&c.data?.length)renderMainPatchnotes(c.data);}catch{}
+  try{
+    const r=await fetch('/api/patches',{cache:'no-store'});
+    const d=await r.json();
+    const arr=(d.patches||[]).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    localStorage.setItem(TC_PATCH_CACHE,JSON.stringify({ts:Date.now(),data:arr}));
+    renderMainPatchnotes(arr);
+  }catch(e){
+    console.warn('[main patchnotes]',e);
+    const grid=document.getElementById('mainPatchnoteGrid');
+    if(grid)grid.innerHTML='<div class="patchnoteLoading">패치노트를 불러오지 못했습니다.</div>';
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('patchPreviewModal')?.classList.contains('open'))closePatchPreview();});
+window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
+</script>
+
+</body>
+</html>

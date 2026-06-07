@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Turn City 관리자 패널</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#2f7dff;--sky:#41d6ff;--bg:#06101e;--card:#0e1c30;--line:rgba(255,255,255,.1);--line2:rgba(80,170,255,.32);--txt:rgba(255,255,255,.92);--mu:rgba(255,255,255,.48);--mu2:rgba(255,255,255,.7);--grad:linear-gradient(135deg,var(--blue),var(--sky));--red:#f87171;--green:#4ade80;--orange:#fb923c}
+body{font-family:'Noto Sans KR',sans-serif;background:radial-gradient(circle at 15% 20%,rgba(47,125,255,.28),transparent 30%),linear-gradient(180deg,#06101e,#030912);color:var(--txt);min-height:100vh}
+a{color:inherit;text-decoration:none}button,input,textarea{font-family:inherit}
+.login{position:fixed;inset:0;z-index:50;background:rgba(3,9,18,.92);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:20px}
+.loginBox{width:390px;background:rgba(14,28,48,.92);border:1px solid var(--line2);border-radius:24px;padding:38px;box-shadow:0 30px 90px rgba(0,0,0,.5);text-align:center}
+.loginBox h1{font-family:Outfit;font-size:28px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.loginBox p{color:var(--mu);font-size:13px;margin-bottom:24px}
+.inp{width:100%;padding:13px 15px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:white;outline:0;margin-bottom:12px}
+.inp:focus{border-color:var(--line2)}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:white;border-radius:12px;padding:10px 16px;font-weight:900;cursor:pointer;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn:hover{border-color:var(--line2)}.btn.primary{background:var(--grad);border:0}.btn.red{background:rgba(248,113,113,.13);color:#ff9a9a;border-color:rgba(248,113,113,.28)}
+.lay{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:rgba(6,16,30,.88);border-right:1px solid var(--line);padding:22px 12px;position:sticky;top:0;height:100vh}
+.logo{font-family:Outfit;font-size:20px;font-weight:900;padding:8px 10px 24px;border-bottom:1px solid var(--line);margin-bottom:18px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav button,.nav a{display:flex;width:100%;align-items:center;gap:9px;padding:11px 12px;border-radius:10px;border:0;background:none;color:var(--mu2);font-weight:800;cursor:pointer;text-align:left;margin-bottom:3px}
+.nav button:hover,.nav a:hover,.nav .active{background:rgba(47,125,255,.12);color:#9cc8ff}
+.mn{padding:34px 40px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:24px}
+.title{font-family:Outfit;font-size:30px;font-weight:900}.sub{color:var(--mu);font-size:13px;margin-top:5px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stat{background:rgba(14,28,48,.72);border:1px solid var(--line);border-radius:18px;padding:20px}
+.stat b{font-family:Outfit;font-size:31px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat span{display:block;color:var(--mu);font-size:12px;margin-top:4px}
+.card{background:rgba(14,28,48,.78);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px}
+.ct{font-family:Outfit;font-size:15px;color:#9cc8ff;letter-spacing:.08em;margin-bottom:15px}
+.tbl{width:100%;border-collapse:collapse}.tbl th{text-align:left;color:var(--mu);font-size:11px;padding:0 10px 10px;border-bottom:1px solid var(--line)}.tbl td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;vertical-align:middle}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;color:#9cc8ff;font-size:11px;font-weight:900;margin-bottom:7px;letter-spacing:.07em}.field.full{grid-column:1/-1}textarea{min-height:140px;resize:vertical;line-height:1.7}
+.tags{display:flex;gap:8px;flex-wrap:wrap}.tags label{color:var(--mu2);border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.hide{display:none!important}
+.toast{position:fixed;right:22px;bottom:22px;background:#0e1c30;border:1px solid var(--line2);border-radius:14px;padding:13px 16px;opacity:0;transform:translateY(12px);transition:.2s;z-index:90}.toast.show{opacity:1;transform:translateY(0)}
+.assetGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.preview{width:100%;height:170px;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:#07111f;display:none}
+.block{border:1px solid var(--line);border-radius:14px;padding:13px;background:rgba(255,255,255,.035);margin-bottom:10px;position:relative}
+.blockHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--mu)}
+.dragHandle{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.055);color:#9cc8ff;display:inline-flex;align-items:center;justify-content:center;cursor:grab;user-select:none;margin-right:8px}
+.block.dragging{opacity:.55;border-color:rgba(47,125,255,.65);background:rgba(47,125,255,.10)}.block.drag-over{border-color:rgba(65,214,255,.85);box-shadow:0 0 0 2px rgba(65,214,255,.16)}
+.hint{color:var(--mu);font-size:12px;line-height:1.7;margin-bottom:10px;padding:12px;border:1px dashed var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
+@media(max-width:900px){.lay{grid-template-columns:1fr}.side{position:static;height:auto}.mn{padding:24px 16px}.grid,.assetGrid,.formgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="login" id="login">
+ <div class="loginBox">
+  <h1>TURN CITY ADMIN</h1>
+  <p>Firebase 연동 관리자 패널</p>
+  <input class="inp" id="pw" type="password" placeholder="비밀번호">
+  <button class="btn primary" id="loginBtn" style="width:100%">로그인</button>
+  <p id="loginErr" style="color:#ff9a9a;margin-top:12px;display:none">비밀번호가 틀렸습니다.</p>
+ </div>
+</div>
+
+<div class="lay">
+<aside class="side">
+ <div class="logo">TURN CITY</div>
+ <div class="nav">
+  <button class="active" data-view="dash">📊 대시보드</button>
+  <button data-view="patches">📋 패치노트 목록</button>
+  <button data-action="newPatch">✏️ 새 패치노트</button>
+  <button data-view="assets">🖼️ 사이트 자산</button>
+  <button data-view="settings">⚙️ 사이트 설정</button>
+  <a href="index.html" target="_blank">🏠 본 사이트</a>
+  <a href="patchnote.html" target="_blank">🌐 패치노트 페이지</a>
+  <button data-action="logout">🚪 로그아웃</button>
+ </div>
+</aside>
+
+<main class="mn">
+<section id="v-dash">
+ <div class="head"><div><div class="title">대시보드</div><div class="sub">Turn City 패치노트 / 사이트 관리</div></div><button class="btn primary" data-action="newPatch">새 패치노트</button></div>
+ <div class="grid"><div class="stat"><b id="stP">—</b><span>전체 패치노트</span></div><div class="stat"><b id="stA">—</b><span>자산 상태</span></div><div class="stat"><b id="stF">OK</b><span>Firebase</span></div></div>
+ <div class="card"><div class="ct">최근 패치노트</div><table class="tbl"><thead><tr><th>제목</th><th>날짜</th><th>태그</th><th>관리</th></tr></thead><tbody id="dashRows"></tbody></table></div>
+</section>
+
+<section id="v-patches" class="hide">
+ <div class="head"><div><div class="title">패치노트 목록</div><div class="sub">패치노트 / 업데이트 관리</div></div><button class="btn primary" data-action="newPatch">새 패치노트</button></div>
+ <div class="card"><table class="tbl"><thead><tr><th>제목</th><th>버전</th><th>날짜</th><th>태그</th><th>관리</th></tr></thead><tbody id="patchRows"></tbody></table></div>
+</section>
+
+<section id="v-editor" class="hide">
+ <div class="head"><div><div class="title" id="editTitle">새 패치노트</div><div class="sub">작성 후 저장하면 메인/패치노트 페이지에 바로 표시됩니다.</div></div></div>
+ <div class="card">
+  <input type="hidden" id="pid">
+  <div class="formgrid">
+   <div class="field"><label>제목/버전</label><input class="inp" id="ver" placeholder="예: 2026-06-07 패치내역"></div>
+   <div class="field"><label>날짜</label><input class="inp" id="date" placeholder="예: 2026년 6월 7일"></div>
+   <div class="field full"><label>태그</label><div class="tags"><label><input type="checkbox" id="tag-new"> 신규</label><label><input type="checkbox" id="tag-fix"> 버그수정</label><label><input type="checkbox" id="tag-change"> 변경</label><label><input type="checkbox" id="tag-remove"> 삭제</label></div></div>
+   <div class="field full"><label>내용 블록</label>
+    <div class="hint">Discord Markdown 지원: ## 제목, - 목록, 1. 번호, &gt; 인용, **굵게**, ~~취소선~~, `코드`, ```코드블록```, [링크](URL), ![이미지](URL), :::warning 박스 :::</div>
+    <div id="blocks"></div>
+    <div class="actions"><button class="btn" data-action="addText">+ 텍스트</button><button class="btn" data-action="addImage">+ 이미지 URL</button></div>
+   </div>
+  </div>
+  <div class="actions"><button class="btn primary" data-action="savePatch">저장</button><button class="btn" data-view="patches">취소</button></div>
+ </div>
+</section>
+
+<section id="v-assets" class="hide">
+ <div class="head"><div><div class="title">사이트 자산</div><div class="sub">아이콘 / 배경 / 기본 썸네일</div></div></div>
+ <div class="assetGrid">
+  <div class="card"><div class="ct">아이콘</div><img id="iconPrev" class="preview"><input class="inp" id="iconUrl" placeholder="아이콘 이미지 URL"><div class="actions"><button class="btn primary" data-action="saveAsset">저장</button></div></div>
+  <div class="card"><div class="ct">기본 썸네일</div><img id="thumbPrev" class="preview"><input class="inp" id="thumbUrl" placeholder="썸네일 이미지 URL"><div class="actions"><button class="btn primary" data-action="saveAsset">저장</button></div></div>
+  <div class="card"><div class="ct">배경 이미지 슬라이드</div><textarea class="inp" id="bgSlides" placeholder="이미지 URL을 줄마다 입력"></textarea><label>전환 간격(초)</label><input class="inp" id="bgInterval" value="6"><div class="actions"><button class="btn primary" data-action="saveAsset">저장</button></div></div>
+  <div class="card"><div class="ct">배경 영상</div><input class="inp" id="bgVideo" placeholder="MP4 URL"><div class="actions"><button class="btn primary" data-action="saveAsset">저장</button></div></div>
+ </div>
+</section>
+
+<section id="v-settings" class="hide">
+ <div class="head"><div><div class="title">사이트 설정</div><div class="sub">기본 링크 / 서버 정보</div></div></div>
+ <div class="card"><div class="formgrid"><div><label>디스코드</label><input class="inp" id="discordUrl" placeholder="https://discord.gg/2026turn"></div><div><label>서버 주소</label><input class="inp" id="connectUrl" placeholder="sv.dolp.kr"></div></div><div class="actions"><button class="btn primary" data-action="saveSettings">저장</button></div></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast">저장 완료</div>
+
+<script>
+(function(){
+const ADMIN_HASH="8dd1435cd188029bf5556742d5d040c8e8da902b1ff46f20e53a61febdd5f16c";
+let patches=[], assets={}, settings={};
+let dragBlock=null, dragRAF=null;
+
+const $ = (id)=>document.getElementById(id);
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+async function sha256(t){const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+function showToast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+async function api(path,opt={}){const r=await fetch(path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok||d.ok===false)throw new Error(d.error||'API 오류');return d;}
+
+async function login(){
+ const ok = await sha256($('pw').value) === ADMIN_HASH;
+ if(ok){sessionStorage.setItem('tc_admin','1');$('login').style.display='none';init();}
+ else $('loginErr').style.display='block';
+}
+function logout(){sessionStorage.removeItem('tc_admin');location.reload();}
+
+function view(v,btn){
+ document.querySelectorAll('main section').forEach(s=>s.classList.add('hide'));
+ const target=$('v-'+v); if(target) target.classList.remove('hide');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ if(btn && btn.closest('.nav')) btn.classList.add('active');
+ if(v==='patches') renderPatches();
+ if(v==='assets') renderAssets();
+ if(v==='settings') renderSettings();
+}
+
+async function init(){
+ try{await Promise.all([loadPatches(),loadAssets(),loadSettings()]);renderDash();}
+ catch(e){console.error(e);showToast('API 오류: '+e.message);}
+}
+async function loadPatches(){const d=await api('/api/patches');patches=d.patches||[];}
+async function loadAssets(){assets=await api('/api/assets');}
+async function loadSettings(){settings=await api('/api/settings').catch(()=>({discordUrl:'https://discord.gg/2026turn',connectUrl:'sv.dolp.kr'}));}
+
+function row(p,full=false){return `<tr><td>${esc(p.title||p.ver||'')}</td>${full?`<td>${esc(p.ver||'')}</td>`:''}<td>${esc(p.date||'')}</td><td>${(p.tags||[]).join(', ')}</td><td><button class="btn" data-edit="${p.id}">수정</button> ${full?`<button class="btn red" data-del="${p.id}">삭제</button>`:''}</td></tr>`;}
+function renderDash(){$('stP').textContent=patches.length;$('stA').textContent=(assets.iconUrl||assets.bgSlides?.length)?'OK':'—';$('dashRows').innerHTML=patches.slice(0,5).map(p=>row(p,false)).join('')||'<tr><td colspan="4">패치노트 없음</td></tr>';}
+function renderPatches(){$('patchRows').innerHTML=patches.map(p=>row(p,true)).join('')||'<tr><td colspan="5">패치노트 없음</td></tr>';}
+
+function clearEditor(){
+ $('pid').value='';$('ver').value='';$('date').value='';
+ ['new','fix','change','remove'].forEach(t=>$('tag-'+t).checked=false);
+ $('blocks').innerHTML=''; addBlock('text');
+}
+function newPatch(){clearEditor();view('editor');}
+function addBlock(type,data={}){
+ const div=document.createElement('div'); div.className='block'; div.dataset.type=type;
+ div.innerHTML=`<div class="blockHead"><b><span class="dragHandle" title="드래그">⋮⋮</span>${type==='image'?'이미지':'텍스트'}</b><button class="btn red" data-remove-block>삭제</button></div>${type==='image'?`<input class="inp b-url" placeholder="이미지 URL" value="${esc(data.url||'')}"/>`:`<textarea class="inp b-text" placeholder="## 제목\n- 목록\n> 인용문\n**굵게** ~~취소선~~ \`코드\`\n:::warning\n중요 안내\n:::">${esc(data.text||'')}</textarea>`}`;
+ $('blocks').appendChild(div); bindDrag(div);
+}
+function editPatch(id){
+ const p=patches.find(x=>x.id===id); if(!p)return;
+ clearEditor(); $('pid').value=id; $('ver').value=p.ver||p.title||''; $('date').value=p.date||'';
+ ['new','fix','change','remove'].forEach(t=>$('tag-'+t).checked=(p.tags||[]).includes(t));
+ $('blocks').innerHTML=''; (p.blocks||[]).forEach(b=>addBlock(b.type==='image'?'image':'text',b)); view('editor');
+}
+async function savePatch(){
+ const id=$('pid').value;
+ const tags=['new','fix','change','remove'].filter(t=>$('tag-'+t).checked);
+ const blocks=[...document.querySelectorAll('#blocks .block')].map(b=>b.dataset.type==='image'?{type:'image',url:b.querySelector('.b-url').value.trim()}:{type:'text',text:b.querySelector('.b-text').value}).filter(b=>b.url||b.text);
+ const body={id,ver:$('ver').value.trim(),title:$('ver').value.trim(),date:$('date').value.trim(),tags,blocks};
+ await api('/api/patches',{method:id?'PUT':'POST',body:JSON.stringify(body)});
+ showToast('저장 완료'); await loadPatches(); view('patches'); renderDash();
+}
+async function delPatch(id){if(!confirm('삭제할까요?'))return;await api('/api/patches?id='+encodeURIComponent(id),{method:'DELETE'});showToast('삭제 완료');await loadPatches();renderPatches();renderDash();}
+
+function renderAssets(){
+ $('iconUrl').value=assets.iconUrl||''; $('thumbUrl').value=assets.defaultThumbUrl||''; $('bgSlides').value=(assets.bgSlides||[]).join('\n'); $('bgInterval').value=assets.bgInterval||6; $('bgVideo').value=assets.bgVideoUrl||'';
+ [['iconPrev',assets.iconUrl],['thumbPrev',assets.defaultThumbUrl]].forEach(([id,url])=>{const img=$(id);if(url){img.src=url;img.style.display='block'}else img.style.display='none';});
+}
+async function saveAsset(){
+ const body={iconUrl:$('iconUrl').value.trim(),defaultThumbUrl:$('thumbUrl').value.trim(),bgSlides:$('bgSlides').value.split(/\n+/).map(s=>s.trim()).filter(Boolean),bgInterval:Number($('bgInterval').value||6),bgVideoUrl:$('bgVideo').value.trim()};
+ await api('/api/assets',{method:'POST',body:JSON.stringify(body)}); showToast('자산 저장 완료'); await loadAssets(); renderAssets();
+}
+function renderSettings(){$('discordUrl').value=settings.discordUrl||'https://discord.gg/2026turn';$('connectUrl').value=settings.connectUrl||'sv.dolp.kr';}
+async function saveSettings(){await api('/api/settings',{method:'POST',body:JSON.stringify({discordUrl:$('discordUrl').value.trim(),connectUrl:$('connectUrl').value.trim()})});showToast('설정 저장 완료');await loadSettings();}
+
+function bindDrag(block){
+ const handle=block.querySelector('.dragHandle'); if(!handle)return;
+ handle.addEventListener('mousedown',()=>block.draggable=true);
+ handle.addEventListener('mouseup',()=>setTimeout(()=>block.draggable=false,0));
+ block.addEventListener('dragstart',e=>{dragBlock=block;block.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');});
+ block.addEventListener('dragend',()=>{block.classList.remove('dragging');document.querySelectorAll('.block.drag-over').forEach(x=>x.classList.remove('drag-over'));dragBlock=null;block.draggable=false;});
+ block.addEventListener('dragover',e=>{if(!dragBlock||dragBlock===block)return;e.preventDefault();if(dragRAF)return;dragRAF=requestAnimationFrame(()=>{dragRAF=null;const wrap=$('blocks');const rect=block.getBoundingClientRect();const after=(e.clientY-rect.top)>rect.height/2;document.querySelectorAll('.block.drag-over').forEach(x=>x.classList.remove('drag-over'));block.classList.add('drag-over');wrap.insertBefore(dragBlock,after?block.nextSibling:block);});});
+ block.addEventListener('dragleave',()=>block.classList.remove('drag-over'));
+ block.addEventListener('drop',e=>{e.preventDefault();block.classList.remove('drag-over');});
+}
+
+document.addEventListener('click',e=>{
+ const viewBtn=e.target.closest('[data-view]'); if(viewBtn){view(viewBtn.dataset.view,viewBtn);return;}
+ const action=e.target.closest('[data-action]')?.dataset.action;
+ if(action==='newPatch') return newPatch();
+ if(action==='logout') return logout();
+ if(action==='addText') return addBlock('text');
+ if(action==='addImage') return addBlock('image');
+ if(action==='savePatch') return savePatch().catch(err=>showToast(err.message));
+ if(action==='saveAsset') return saveAsset().catch(err=>showToast(err.message));
+ if(action==='saveSettings') return saveSettings().catch(err=>showToast(err.message));
+ const edit=e.target.closest('[data-edit]')?.dataset.edit; if(edit)return editPatch(edit);
+ const del=e.target.closest('[data-del]')?.dataset.del; if(del)return delPatch(del).catch(err=>showToast(err.message));
+ if(e.target.closest('[data-remove-block]')) return e.target.closest('.block').remove();
+});
+$('loginBtn').addEventListener('click',login);
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+if(sessionStorage.getItem('tc_admin')==='1'){$('login').style.display='none';init();}
+
+// expose for console debug
+window.tcAdmin={view,newPatch,savePatch,addBlock,init};
+})();
+</script>
+</body>
+</html>
