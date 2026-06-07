@@ -328,7 +328,7 @@ body:after{opacity:.25!important}
       safeHref('discordBtn', s.discordUrl);
       safeHref('discordHero', s.discordUrl);
 
-      var connect = s.connectUrl || 'sv.dolp.kr';
+      var connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
       ['startTop','startHero','gameStart','connectBtn'].forEach(function(id){
         var el = document.getElementById(id);
         if(el) el.href = 'fivem://connect/' + connect;
@@ -363,11 +363,23 @@ body:after{opacity:.25!important}
   <div id="bg"></div><div class="orb a"></div><div class="orb b"></div>
   <nav><a class="brand" href="#home"><img id="siteIcon" alt="Turn City"><span>TURN CITY</span></a><ul class="navlinks"><li><a href="patchnote.html">패치노트</a></li><li><a href="#feature">소개</a></li><li><a href="#guide">시작가이드</a></li></ul><button class="menu" onclick="toggleMenu()">☰</button><div class="navright"><a id="nav디스코드" class="pillbtn" target="_blank">디스코드</a><a id="navConnect" class="pillbtn primary">게임 시작</a></div></nav>
   <div class="mobile" id="mobile"><a href="#status">유저보드</a><a href="patchnote.html">패치노트</a><a href="#feature">소개</a><a href="#guide">시작가이드</a><a id="mob디스코드" target="_blank">디스코드 참여</a></div>
-  <section class="hero" id="home"><div><div class="eyebrow"><span class="dot"></span>TURN CITY OFFICIAL</div><h1>새로운 도시,<br><em>Turn City</em>에서<br>당신의 차례가 시작됩니다</h1><p class="sub">현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.</p><div class="actions"><a id="heroConnect" class="btn main">게임 접속하기</a><a id="hero디스코드" class="btn" target="_blank">디스코드 참여하기</a><a class="btn" href="patchnote.html">패치노트 보기</a></div><div class="hero-stats">
-  <div class="stat"><b>PATCH</b><span>최신 패치노트</span></div>
-  <div class="stat"><b>RP</b><span>Turn City Roleplay</span></div>
-  <div class="stat"><b>24H</b><span>언제든 시작</span></div>
-</div></div></section>
+  <section class="hero" id="home"><div><div class="eyebrow"><span class="dot"></span>TURN CITY OFFICIAL</div><h1>새로운 도시,<br><em>Turn City</em>에서<br>당신의 차례가 시작됩니다</h1><p class="sub">현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.</p><div class="actions"><a id="heroConnect" class="btn main">게임 접속하기</a><a id="hero디스코드" class="btn" target="_blank">디스코드 참여하기</a><a class="btn" href="patchnote.html">패치노트 보기</a></div>
+<div class="hero-stats" id="heroStats">
+  <div class="stat">
+    <b id="heroPatchMain">PATCH</b>
+    <span id="heroPatchSub">최신 패치노트</span>
+  </div>
+  <div class="stat">
+    <b id="heroPlayersMain">실시간 인원</b>
+    <span id="heroPlayersSub">실시간 인원 확인중</span>
+  </div>
+  <div class="stat">
+    <b id="heroConnectMain">24H</b>
+    <span id="heroConnectSub">connect (추후 다이렉트 주소 추가)</span>
+  </div>
+</div>
+
+</section>
 
   <section id="news">
     <div class="wrap">
@@ -401,7 +413,7 @@ body:after{opacity:.25!important}
 </div>
 
 <footer><div class="foot"><div><b>TURN CITY</b><p>새로운 도시, 새로운 선택. Turn City 공식 홈페이지입니다.</p></div><div><b>MENU</b><a href="#status">유저보드</a><a href="patchnote.html">패치노트</a><a href="#guide">가이드</a></div><div><b>COMMUNITY</b><a id="foot디스코드" target="_blank">디스코드</a><a id="footNotice" target="_blank">공지 채널</a></div><div><b>SERVER</b><p id="footAddress">connect 주소 준비중</p></div></div><div class="copyr">© 2026 Turn City. All rights reserved.</div></footer>
-  <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="sv.dolp.kr"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
+  <button class="adminFab" onclick="location.href='admin.html'" title="관리자 패널">⚙</button><div class="admin" id="admin"><div class="adminBox"><h2>Turn City 관리자 패널</h2><p class="desc" style="margin-bottom:18px">저장 내용은 현재 브라우저 localStorage에 저장됩니다. 실제 운영용 DB/관리자 로그인은 백엔드 연결 시 추가하면 됩니다.</p><div class="form"><div class="field"><label>디스코드 초대 링크</label><input id="cfg디스코드"></div><div class="field"><label>connect 주소</label><input id="cfgConnect" placeholder="(추후 다이렉트 주소 추가)"></div><div class="field"><label>서버 API / players.json URL</label><input id="cfgApi" placeholder="https://example.com/players.json"></div><div class="field"><label>공지 링크</label><input id="cfgNotice"></div><div class="field full"><label>서버 아이콘 URL</label><input id="cfgIcon"></div><div class="field full"><label>배경 이미지 URL</label><input id="cfgBg"></div><div class="field full"><label>메인 문구</label><textarea id="cfgHero" rows="3"></textarea></div></div><div class="adminActions"><button class="btn" onclick="closeAdmin()">닫기</button><button class="btn main" onclick="saveAdmin()">저장하기</button></div></div></div>
   <script>
     const DEFAULT={discord:'https://discord.gg/2026turn',connect:'',api:'',notice:'https://discord.gg/2026turn',icon:'',bg:'',hero:'현실적인 경제, 몰입감 있는 롤플레이, 빠른 커뮤니티 소통까지. 지금 Turn City에서 새로운 이야기를 시작하세요.'};
     let cfg={...DEFAULT,...JSON.parse(localStorage.getItem('turn_city_config')||'{}')};let players=[];
@@ -552,7 +564,7 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
       safeSetHref('discordTop', s.discordUrl);
       safeSetHref('discordBtn', s.discordUrl);
       safeSetHref('discordHero', s.discordUrl);
-      const connect = s.connectUrl || 'sv.dolp.kr';
+      const connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
       ['startTop','startHero','gameStart','connectBtn'].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.href = 'fivem://connect/' + connect;
@@ -566,6 +578,87 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
     applyTurnCityAssets();
     applyTurnCitySettings();
   });
+})();
+</script>
+
+
+<script>
+/* Turn City hero stat boxes dynamic */
+(function(){
+  function setText(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
+
+  function shortDate(p){
+    if(!p) return "";
+    if(p.date) return p.date;
+    if(p.createdAt && p.createdAt.seconds){
+      return new Date(p.createdAt.seconds * 1000).toLocaleDateString('ko-KR');
+    }
+    return "";
+  }
+
+  async function loadLatestPatchStat(){
+    try{
+      const res = await fetch('/api/patches', {cache:'no-store'});
+      const data = await res.json();
+      const patches = (data.patches || []).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+      const latest = patches[0];
+      if(latest){
+        setText('heroPatchMain', 'PATCH');
+        setText('heroPatchSub', `${shortDate(latest)} · ${latest.title || latest.ver || '최신 패치노트'}`);
+      }else{
+        setText('heroPatchMain', 'PATCH');
+        setText('heroPatchSub', '등록된 패치노트 없음');
+      }
+    }catch(e){
+      setText('heroPatchMain', 'PATCH');
+      setText('heroPatchSub', '패치노트 확인중');
+    }
+  }
+
+  async function loadPlayerStat(){
+    try{
+      const res = await fetch('/api/status', {cache:'no-store'});
+      const data = await res.json();
+      if(data && data.online){
+        const count = data.playerCount ?? 0;
+        const max = data.maxPlayers ?? 0;
+        setText('heroPlayersMain', `${count}${max ? '/' + max : ''}`);
+        setText('heroPlayersSub', '실시간 접속 인원');
+      }else{
+        setText('heroPlayersMain', 'OFF');
+        setText('heroPlayersSub', '서버 상태 확인 불가');
+      }
+    }catch(e){
+      setText('heroPlayersMain', '실시간 인원');
+      setText('heroPlayersSub', '서버 API 연결 대기');
+    }
+  }
+
+  async function loadConnectStat(){
+    try{
+      const res = await fetch('/api/settings', {cache:'no-store'});
+      const s = await res.json();
+      const connect = s.connectUrl || '(추후 다이렉트 주소 추가)';
+      setText('heroConnectMain', 'CONNECT');
+      setText('heroConnectSub', `connect ${connect}`);
+    }catch(e){
+      setText('heroConnectMain', 'CONNECT');
+      setText('heroConnectSub', 'connect (추후 다이렉트 주소 추가)');
+    }
+  }
+
+  function run(){
+    loadLatestPatchStat();
+    loadPlayerStat();
+    loadConnectStat();
+    setInterval(loadPlayerStat, 30000);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
 })();
 </script>
 
