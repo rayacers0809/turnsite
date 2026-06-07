@@ -272,6 +272,86 @@ body:after{opacity:.25!important}
   background-image:none!important;
 }
 
+
+/* ===== TURN CITY VIDEO BACKGROUND REAL FIX =====
+   원인: 기존 CSS의 #bg, body background, 음수 z-index 영상 레이어가 영상을 가리고 있었음.
+   해결: 영상은 z-index 0, 오버레이는 z-index 1, 실제 콘텐츠는 z-index 2 이상으로 고정.
+*/
+html, body {
+  background: transparent !important;
+}
+
+#tcVideoBgFinal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+  display: none;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  background: #020812;
+}
+
+#tcVideoBgFinal.on {
+  display: block !important;
+}
+
+#tcVideoOverlayFinal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  display: none;
+  pointer-events: none !important;
+  background:
+    linear-gradient(to bottom, rgba(2,8,18,.30), rgba(2,8,18,.72)),
+    linear-gradient(to right, rgba(2,8,18,.76), rgba(2,8,18,.18), rgba(2,8,18,.76)),
+    linear-gradient(90deg, rgba(47,125,255,.10) 1px, transparent 1px),
+    linear-gradient(rgba(47,125,255,.07) 1px, transparent 1px);
+  background-size: auto, auto, 72px 72px, 72px 72px;
+}
+
+#tcVideoOverlayFinal.on {
+  display: block !important;
+}
+
+/* 기존 배경 레이어는 영상이 있으면 꺼짐 */
+#bg.video-mode,
+#tcAssetBgImage.video-mode,
+#tcBgLayer.video-mode,
+.tcAssetBgImage.video-mode,
+.tc-bg-layer.video-mode {
+  display: none !important;
+  opacity: 0 !important;
+  background-image: none !important;
+}
+
+/* 콘텐츠는 영상 위로 */
+nav,
+.mobile,
+section,
+footer,
+.adminFab,
+.patch-modal,
+#patchPreviewModal {
+  position: relative;
+  z-index: 2 !important;
+}
+
+nav {
+  z-index: 50 !important;
+}
+
+.adminFab {
+  z-index: 70 !important;
+}
+
+/* 기존 #bg는 이미지 배경일 때만 사용 */
+#bg {
+  z-index: -1 !important;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
@@ -449,7 +529,10 @@ body:after{opacity:.25!important}
     async function refreshPlayers(){if(!cfg.api){players=[{id:1,name:'패치노트'},{id:2,name:'API 연결 대기중'},{id:3,name:'관리자 패널에서 서버 API 입력'}];setStatus(true,players.length);renderPlayers();return}try{const r=await fetch(cfg.api,{cache:'no-store'});const data=await r.json();players=(Array.isArray(data)?data:(data.players||[])).map((p,i)=>({id:p.id??p.source??p.endpoint??i+1,name:p.name||p.nickname||p.playerName||'Unknown'}));setStatus(true,players.length);renderPlayers()}catch(e){players=[];setStatus(false,'—');renderPlayers('접속자 정보를 불러오지 못했습니다.')}}
     function renderPlayers(msg){const q=($('search').value||'').toLowerCase();const list=players.filter(p=>(p.name+' '+p.id).toLowerCase().includes(q));$('playerGrid').innerHTML=msg?`<div class="empty">${msg}</div>`:list.length?list.map(p=>`<div class="player"><div class="avatar">${String(p.name).trim().charAt(0)||'U'}</div><div><div class="pname">${escapeHtml(p.name)}</div><div class="pid">ID: ${escapeHtml(String(p.id))}</div></div></div>`).join(''):'<div class="empty">표시할 유저가 없습니다.</div>'}
     function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-    applyCfg();refreshPlayers();setInterval(refreshPlayers,30000);document.querySelectorAll('.mobile a').forEach(a=>a.addEventListener('click',()=>$('mobile').classList.remove('open')));
+    try{applyCfg()}catch(e){console.warn('[TurnCity old applyCfg ignored]',e)}
+try{refreshPlayers()}catch(e){console.warn('[TurnCity old refreshPlayers ignored]',e)}
+try{setInterval(refreshPlayers,30000)}catch(e){}
+try{document.querySelectorAll('.mobile a').forEach(a=>a.addEventListener('click',()=>$('mobile').classList.remove('open')))}catch(e){}
   </script>
 
 
@@ -755,6 +838,115 @@ window.addEventListener('DOMContentLoaded',loadMainPatchnotes);
   }
 
   setTimeout(applyVideoBg, 1000);
+})();
+</script>
+
+
+<script>
+/* ===== TURN CITY VIDEO BACKGROUND REAL FIX JS ===== */
+(function(){
+  function ensureVideo(){
+    let v = document.getElementById("tcVideoBgFinal");
+    if(!v){
+      v = document.createElement("video");
+      v.id = "tcVideoBgFinal";
+      v.autoplay = true;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.setAttribute("autoplay", "");
+      v.setAttribute("muted", "");
+      v.setAttribute("loop", "");
+      v.setAttribute("playsinline", "");
+      document.body.prepend(v);
+    }
+
+    v.muted = true;
+    v.autoplay = true;
+    v.loop = true;
+    v.playsInline = true;
+    return v;
+  }
+
+  function ensureOverlay(){
+    let o = document.getElementById("tcVideoOverlayFinal");
+    if(!o){
+      o = document.createElement("div");
+      o.id = "tcVideoOverlayFinal";
+      const v = document.getElementById("tcVideoBgFinal");
+      if(v && v.nextSibling) document.body.insertBefore(o, v.nextSibling);
+      else document.body.prepend(o);
+    }
+    return o;
+  }
+
+  function hideOldBackgrounds(){
+    ["bg", "tcAssetBgImage", "tcBgLayer"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.add("video-mode");
+    });
+  }
+
+  function applyImageFallback(assets){
+    const bg = document.getElementById("bg");
+    if(!bg) return;
+
+    bg.classList.remove("video-mode");
+
+    const img = Array.isArray(assets.bgSlides) && assets.bgSlides.length
+      ? assets.bgSlides[0]
+      : assets.defaultThumbUrl;
+
+    if(img){
+      document.documentElement.style.setProperty("--custom-bg", `url("${img}")`);
+    }
+  }
+
+  async function applyAssets(){
+    try{
+      const res = await fetch("/api/assets?cb=" + Date.now(), { cache: "no-store" });
+      const assets = await res.json();
+
+      console.log("[TurnCity REAL BG] assets", assets);
+
+      if(assets.bgVideoUrl){
+        hideOldBackgrounds();
+
+        const v = ensureVideo();
+        const o = ensureOverlay();
+
+        if(v.src !== assets.bgVideoUrl){
+          v.src = assets.bgVideoUrl;
+          v.load();
+        }
+
+        v.classList.add("on");
+        o.classList.add("on");
+
+        try{
+          await v.play();
+          console.log("[TurnCity REAL BG] video playing", assets.bgVideoUrl);
+        }catch(err){
+          console.warn("[TurnCity REAL BG] autoplay failed, but video element is visible", err);
+        }
+
+        return;
+      }
+
+      applyImageFallback(assets);
+    }catch(e){
+      console.error("[TurnCity REAL BG] failed", e);
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", applyAssets);
+  }else{
+    applyAssets();
+  }
+
+  setTimeout(applyAssets, 1000);
+  setTimeout(applyAssets, 3000);
 })();
 </script>
 
