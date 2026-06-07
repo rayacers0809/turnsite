@@ -813,11 +813,13 @@ section:last-of-type {
 
 
 
+
 <script>
-/* Main page patchnote card click fix */
+/* Main page patchnote card click fix + default thumbnail fix */
 (function(){
-  const CACHE_KEY = "turncity_main_patch_click_fix_v1";
+  const CACHE_KEY = "turncity_main_patch_click_fix_v2";
   let PATCHES = [];
+  let SITE_ASSETS = { defaultThumbUrl: "", iconUrl: "" };
 
   function esc(s){
     return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -838,9 +840,31 @@ section:last-of-type {
     return (b?.text||"").replace(/[#*_>`\[\]~\-]/g,"").replace(/\s+/g," ").slice(0,115) || "클릭해서 자세히 보기";
   }
 
+  function patchImageOf(p){
+    return (
+      (p.blocks||[]).find(x=>x.type==="image")?.url ||
+      p.image ||
+      p.imageUrl ||
+      p.thumbUrl ||
+      p.thumbnail ||
+      ""
+    );
+  }
+
+  function thumbUrlOf(p){
+    return (
+      patchImageOf(p) ||
+      SITE_ASSETS.defaultThumbUrl ||
+      SITE_ASSETS.iconUrl ||
+      ""
+    );
+  }
+
   function thumbOf(p){
-    const img = (p.blocks||[]).find(x=>x.type==="image")?.url;
-    return img ? `<img src="${esc(img)}" alt="">` : `<div class="patchnoteThumbPh">🏙️</div>`;
+    const img = thumbUrlOf(p);
+    return img
+      ? `<img src="${esc(img)}" alt="" onerror="this.closest('.patchnoteThumb').innerHTML='<div class=&quot;patchnoteThumbPh&quot;>🏙️</div>'">`
+      : `<div class="patchnoteThumbPh">🏙️</div>`;
   }
 
   function preprocess(md){
@@ -916,7 +940,23 @@ section:last-of-type {
     });
   }
 
+  async function loadAssetsForPatchCards(){
+    try{
+      const r = await fetch("/api/assets?cb="+Date.now(), {cache:"no-store"});
+      const a = await r.json();
+      SITE_ASSETS = {
+        defaultThumbUrl: a.defaultThumbUrl || "",
+        iconUrl: a.iconUrl || ""
+      };
+      console.log("[TurnCity PATCH THUMB] assets", SITE_ASSETS);
+    }catch(e){
+      console.warn("[TurnCity PATCH THUMB] assets load failed", e);
+    }
+  }
+
   async function loadPatches(){
+    await loadAssetsForPatchCards();
+
     try{
       const cached = JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
       if(cached && Date.now()-cached.ts<30000 && cached.data?.length){
@@ -945,6 +985,7 @@ section:last-of-type {
   else loadPatches();
 })();
 </script>
+
 
 
 
