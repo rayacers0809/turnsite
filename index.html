@@ -546,6 +546,27 @@ section:last-of-type {
 #tcVideoOverlayFinal.on{display:block!important}
 #bg.video-mode{display:none!important}
 
+
+/* YouTube controls hide/crop fix */
+#tcYoutubeBgFinal iframe{
+  width:140vw!important;
+  height:78.75vw!important;
+  min-width:220vh!important;
+  min-height:124vh!important;
+  transform:translate(-50%,-50%) scale(1.18)!important;
+}
+#tcYoutubeBgFinal::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:auto;
+  background:transparent;
+}
+#tcVideoOverlayFinal{
+  pointer-events:auto!important;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
@@ -1002,7 +1023,7 @@ section:last-of-type {
     const src =
       `https://www.youtube.com/embed/${id}` +
       `?autoplay=1&mute=1&loop=1&playlist=${id}` +
-      `&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+      `&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&start=1&enablejsapi=1`;
 
     y.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
     y.classList.add("on");
@@ -1073,6 +1094,27 @@ section:last-of-type {
   }
 
   setTimeout(loadAssets, 1200);
+})();
+</script>
+
+
+<script>
+/* YouTube initial UI flash cover */
+(function(){
+  function addYoutubeFlashCover(){
+    const box = document.getElementById("tcYoutubeBgFinal");
+    if(!box || document.getElementById("tcYoutubeFlashCover")) return;
+    const cover = document.createElement("div");
+    cover.id = "tcYoutubeFlashCover";
+    cover.style.cssText = "position:fixed;inset:0;z-index:1;pointer-events:none;background:#030912;opacity:1;transition:opacity .6s ease;";
+    document.body.prepend(cover);
+    setTimeout(()=>{ cover.style.opacity = "0"; }, 1600);
+    setTimeout(()=>{ cover.remove(); }, 2400);
+  }
+  const oldLog = console.log;
+  // just run after DOM and again later
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", ()=>setTimeout(addYoutubeFlashCover, 100));
+  else setTimeout(addYoutubeFlashCover, 100);
 })();
 </script>
 
