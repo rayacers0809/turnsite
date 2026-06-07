@@ -517,63 +517,122 @@ section:last-of-type {
 .patchnoteCard{cursor:pointer!important;position:relative;z-index:3}
 
 
-/* YouTube / MP4 background support */
-#tcYoutubeBgFinal{
+/* ===== TURN CITY STORAGE VIDEO FINAL ===== */
+html, body {
+  background:#030912!important;
+  overflow-x:hidden!important;
+}
+
+/* 이미지 배경 기본 레이어 */
+#bg {
+  position:fixed!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+}
+
+#bg.video-mode {
+  display:none!important;
+}
+
+/* Storage 업로드 영상 전용 배경 */
+#tcVideoBgFinal {
   position:fixed!important;
   inset:0!important;
   width:100vw!important;
   height:100vh!important;
+  object-fit:cover!important;
   z-index:0!important;
   display:none;
+  opacity:1!important;
   pointer-events:none!important;
-  overflow:hidden!important;
   background:#030912;
 }
-#tcYoutubeBgFinal iframe{
-  position:absolute!important;
-  top:50%!important;
-  left:50%!important;
-  width:120vw!important;
-  height:67.5vw!important;
-  min-width:177.78vh!important;
-  min-height:100vh!important;
-  transform:translate(-50%,-50%)!important;
-  border:0!important;
+
+#tcVideoBgFinal.on {
+  display:block!important;
+}
+
+#tcVideoOverlayFinal {
+  position:fixed!important;
+  inset:0!important;
+  z-index:1!important;
+  display:none;
   pointer-events:none!important;
+  background:
+    linear-gradient(to bottom, rgba(2,8,18,.32), rgba(2,8,18,.72)),
+    linear-gradient(to right, rgba(2,8,18,.76), rgba(2,8,18,.18), rgba(2,8,18,.76)),
+    linear-gradient(90deg, rgba(47,125,255,.10) 1px, transparent 1px),
+    linear-gradient(rgba(47,125,255,.07) 1px, transparent 1px);
+  background-size:auto,auto,72px 72px,72px 72px;
 }
-#tcYoutubeBgFinal.on{display:block!important}
-#tcVideoBgFinal.on{display:block!important}
-#tcVideoOverlayFinal.on{display:block!important}
-#bg.video-mode{display:none!important}
 
-
-/* YouTube controls hide/crop fix */
-#tcYoutubeBgFinal iframe{
-  width:140vw!important;
-  height:78.75vw!important;
-  min-width:220vh!important;
-  min-height:124vh!important;
-  transform:translate(-50%,-50%) scale(1.18)!important;
+#tcVideoOverlayFinal.on {
+  display:block!important;
 }
-#tcYoutubeBgFinal::after{
+
+/* 실제 콘텐츠는 배경 위 */
+nav,
+.mobile,
+section,
+footer,
+.patch-modal,
+#patchPreviewModal {
+  position:relative;
+  z-index:2!important;
+}
+
+nav { z-index:50!important; }
+
+.adminFab,
+.admin {
+  display:none!important;
+}
+
+/* footer 비침 방지 */
+footer {
+  position:relative!important;
+  z-index:3!important;
+  margin-top:0!important;
+  background:#030912!important;
+  border-top:1px solid rgba(255,255,255,.12)!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+
+footer::before {
   content:"";
   position:absolute;
   inset:0;
-  z-index:3;
-  pointer-events:auto;
-  background:transparent;
+  z-index:-1;
+  background:
+    linear-gradient(180deg, rgba(3,9,18,.98), #030912 72%, #030912),
+    radial-gradient(circle at 20% 0%, rgba(47,125,255,.14), transparent 34%),
+    radial-gradient(circle at 80% 20%, rgba(65,214,255,.10), transparent 30%);
 }
-#tcVideoOverlayFinal{
-  pointer-events:auto!important;
+
+footer .foot {
+  position:relative;
+  z-index:2;
+  padding-top:54px!important;
+  padding-bottom:42px!important;
+}
+
+footer .copyr {
+  position:relative;
+  z-index:2;
+  background:#030912!important;
+  border-top:1px solid rgba(255,255,255,.10)!important;
+}
+
+section:last-of-type {
+  padding-bottom:80px;
 }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
 <body>
-
-<div id="tcYoutubeBgFinal"></div>
-
 
 <video id="tcVideoBgFinal" autoplay muted loop playsinline></video>
 <div id="tcVideoOverlayFinal"></div>
@@ -615,6 +674,7 @@ section:last-of-type {
     </div>
   </section>
 
+  <section id="feature"><div class="wrap"><div class="head"><div><div class="title">도시 핵심 구성</div><div class="desc">참고 사이트들의 장점을 섞어 랜딩·정보·유저보드 중심으로 구성했습니다.</div></div></div><div class="grid3"><div class="card"><div class="ico">🏙️</div><h3>몰입형 도시 분위기</h3><p>히어로 영역은 큰 배경 이미지와 블루 네온 그라데이션으로 첫 인상을 강하게 잡았습니다.</p></div><div class="card"><div class="ico">👥</div><h3>유저보드 중심</h3><p>SHIBA처럼 현재 인원과 접속자 리스트를 메인 콘텐츠로 배치했습니다.</p></div><div class="card"><div class="ico">⚡</div><h3>빠른 진입 동선</h3><p>게임 접속, 디스코드, 공지, 가이드를 상단과 CTA에 반복 배치해 유저가 바로 움직일 수 있습니다.</p></div></div></div></section>
   <section id="guide"><div class="wrap"><div class="head"><div><div class="title">시작 가이드</div><div class="desc">처음 오는 유저도 바로 시작할 수 있게 4단계로 정리했습니다.</div></div></div><div class="guide"><div class="step"><div class="num">01</div><b>디스코드 참여</b><span>공지와 규칙을 먼저 확인합니다.</span></div><div class="step"><div class="num">02</div><b>서버 접속</b><span>connect 주소 또는 게임 시작 버튼으로 입장합니다.</span></div><div class="step"><div class="num">03</div><b>캐릭터 생성</b><span>나만의 직업과 스토리를 선택합니다.</span></div><div class="step"><div class="num">04</div><b>도시 생활 시작</b><span>유저들과 함께 Turn City RP를 즐깁니다.</span></div></div><div class="cta"><h2>Turn City에 합류할 시간</h2><p>서버 주소는 나중에 변경 가능하게 만들어두었습니다. 관리자 패널에서 디스코드, 커넥트 주소, 배경, 아이콘, API 주소를 수정하세요.</p><div class="actions"><a id="ctaConnect" class="btn main">게임 시작</a><a id="cta디스코드" class="btn" target="_blank">DISCORD</a></div></div></div></section>
 
 <div class="patch-modal" id="patchPreviewModal" onclick="if(event.target===this)closePatchPreview()">
@@ -857,7 +917,7 @@ section:last-of-type {
 
 
 <script>
-/* ===== TURN CITY CLEAN FINAL ASSETS JS - YOUTUBE/MP4 SUPPORT ===== */
+/* ===== TURN CITY STORAGE VIDEO FINAL JS ===== */
 (function(){
   function $(id){ return document.getElementById(id); }
 
@@ -881,31 +941,17 @@ section:last-of-type {
     if(!v){
       v = document.createElement("video");
       v.id = "tcVideoBgFinal";
-      v.autoplay = true;
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.setAttribute("autoplay", "");
-      v.setAttribute("muted", "");
-      v.setAttribute("loop", "");
-      v.setAttribute("playsinline", "");
       document.body.prepend(v);
     }
+    v.autoplay = true;
     v.muted = true;
     v.loop = true;
-    v.autoplay = true;
     v.playsInline = true;
+    v.setAttribute("autoplay", "");
+    v.setAttribute("muted", "");
+    v.setAttribute("loop", "");
+    v.setAttribute("playsinline", "");
     return v;
-  }
-
-  function ensureYoutube(){
-    let box = $("tcYoutubeBgFinal");
-    if(!box){
-      box = document.createElement("div");
-      box.id = "tcYoutubeBgFinal";
-      document.body.prepend(box);
-    }
-    return box;
   }
 
   function ensureOverlay(){
@@ -913,38 +959,11 @@ section:last-of-type {
     if(!o){
       o = document.createElement("div");
       o.id = "tcVideoOverlayFinal";
-      const firstBg = $("tcYoutubeBgFinal") || $("tcVideoBgFinal");
-      if(firstBg && firstBg.nextSibling) document.body.insertBefore(o, firstBg.nextSibling);
+      const v = $("tcVideoBgFinal");
+      if(v && v.nextSibling) document.body.insertBefore(o, v.nextSibling);
       else document.body.prepend(o);
     }
     return o;
-  }
-
-  function extractYoutubeId(url){
-    if(!url) return "";
-    try{
-      const u = new URL(url);
-      if(u.hostname.includes("youtu.be")){
-        return u.pathname.replace("/", "").split("/")[0];
-      }
-      if(u.hostname.includes("youtube.com")){
-        if(u.searchParams.get("v")) return u.searchParams.get("v");
-        const parts = u.pathname.split("/").filter(Boolean);
-        const embedIdx = parts.indexOf("embed");
-        if(embedIdx >= 0 && parts[embedIdx+1]) return parts[embedIdx+1];
-        const shortsIdx = parts.indexOf("shorts");
-        if(shortsIdx >= 0 && parts[shortsIdx+1]) return parts[shortsIdx+1];
-      }
-    }catch(e){}
-    return "";
-  }
-
-  function isYoutubeUrl(url){
-    return !!extractYoutubeId(url);
-  }
-
-  function isDirectVideoUrl(url){
-    return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(String(url||""));
   }
 
   function stopVideo(){
@@ -955,32 +974,22 @@ section:last-of-type {
       v.load();
       v.classList.remove("on");
     }
-  }
-
-  function stopYoutube(){
-    const y = $("tcYoutubeBgFinal");
-    if(y){
-      y.innerHTML = "";
-      y.classList.remove("on");
-    }
+    const o = $("tcVideoOverlayFinal");
+    if(o) o.classList.remove("on");
   }
 
   function setImageBg(url){
     stopVideo();
-    stopYoutube();
 
     const bg = $("bg");
-    const o = $("tcVideoOverlayFinal");
     if(bg) bg.classList.remove("video-mode");
-    if(o) o.classList.remove("on");
 
     document.documentElement.style.setProperty("--custom-bg", url ? `url("${url}")` : "none");
+    console.log("[TurnCity] image background applied", url || "none");
   }
 
-  async function setDirectVideoBg(url){
+  async function setVideoBg(url){
     if(!url) return false;
-
-    stopYoutube();
 
     const bg = $("bg");
     if(bg) bg.classList.add("video-mode");
@@ -999,42 +1008,17 @@ section:last-of-type {
 
     try{
       await v.play();
-      console.log("[TurnCity] direct video background playing", url);
+      console.log("[TurnCity] storage video background playing", url);
     }catch(e){
-      console.warn("[TurnCity] direct video autoplay blocked or waiting", e);
+      console.warn("[TurnCity] video autoplay blocked/waiting", e);
     }
 
     return true;
   }
 
-  function setYoutubeBg(url){
-    const id = extractYoutubeId(url);
-    if(!id) return false;
-
-    stopVideo();
-
-    const bg = $("bg");
-    if(bg) bg.classList.add("video-mode");
-
-    const y = ensureYoutube();
-    const o = ensureOverlay();
-
-    const src =
-      `https://www.youtube.com/embed/${id}` +
-      `?autoplay=1&mute=1&loop=1&playlist=${id}` +
-      `&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&start=1&enablejsapi=1`;
-
-    y.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-    y.classList.add("on");
-    o.classList.add("on");
-
-    console.log("[TurnCity] youtube background applied", id);
-    return true;
-  }
-
   async function loadAssets(){
     try{
-      const res = await fetch("/api/assets?cb=" + Date.now(), { cache: "no-store" });
+      const res = await fetch("/api/assets?cb=" + Date.now(), { cache:"no-store" });
       const a = await res.json();
 
       if(a.iconUrl){
@@ -1046,17 +1030,13 @@ section:last-of-type {
       const videoUrl = String(a.bgVideoUrl || "").trim();
 
       if(videoUrl){
-        if(isYoutubeUrl(videoUrl)){
-          setYoutubeBg(videoUrl);
-        }else{
-          await setDirectVideoBg(videoUrl);
-        }
+        await setVideoBg(videoUrl);
       }else{
         const img = Array.isArray(a.bgSlides) && a.bgSlides.length ? a.bgSlides[0] : a.defaultThumbUrl;
         setImageBg(img || "");
       }
 
-      console.log("[TurnCity] assets applied clean yt/mp4", a);
+      console.log("[TurnCity] assets applied storage final", a);
     }catch(e){
       console.warn("[TurnCity] assets load failed", e);
     }
@@ -1064,7 +1044,7 @@ section:last-of-type {
 
   async function loadSettings(){
     try{
-      const res = await fetch("/api/settings?cb=" + Date.now(), { cache: "no-store" });
+      const res = await fetch("/api/settings?cb=" + Date.now(), { cache:"no-store" });
       const s = await res.json();
 
       const discord = s.discordUrl || "https://discord.gg/2026turn";
@@ -1075,7 +1055,7 @@ section:last-of-type {
       ["navConnect","heroConnect","ctaConnect"].forEach(id => safeHref(id, connectHref));
       safeText("footAddress", "connect " + connect.replace(/^connect\s+/i, ""));
 
-      console.log("[TurnCity] settings applied clean", s);
+      console.log("[TurnCity] settings applied storage final", s);
     }catch(e){
       console.warn("[TurnCity] settings load failed", e);
     }
@@ -1093,27 +1073,7 @@ section:last-of-type {
   }
 
   setTimeout(loadAssets, 1200);
-})();
-</script>
-
-
-<script>
-/* YouTube initial UI flash cover */
-(function(){
-  function addYoutubeFlashCover(){
-    const box = document.getElementById("tcYoutubeBgFinal");
-    if(!box || document.getElementById("tcYoutubeFlashCover")) return;
-    const cover = document.createElement("div");
-    cover.id = "tcYoutubeFlashCover";
-    cover.style.cssText = "position:fixed;inset:0;z-index:1;pointer-events:none;background:#030912;opacity:1;transition:opacity .6s ease;";
-    document.body.prepend(cover);
-    setTimeout(()=>{ cover.style.opacity = "0"; }, 1600);
-    setTimeout(()=>{ cover.remove(); }, 2400);
-  }
-  const oldLog = console.log;
-  // just run after DOM and again later
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", ()=>setTimeout(addYoutubeFlashCover, 100));
-  else setTimeout(addYoutubeFlashCover, 100);
+  setTimeout(loadAssets, 3000);
 })();
 </script>
 
