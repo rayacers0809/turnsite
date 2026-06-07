@@ -276,9 +276,9 @@ footer{position:relative;z-index:10;background:rgba(8,6,9,.9);border-top:1px sol
 
 
 /* Turn City patchnote modal fix */
-.patchModalFix{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patchModalFix{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.58);backdrop-filter:none;display:none;align-items:center;justify-content:center;padding:20px}
 .patchModalFix.open{display:flex}
-.patchModalFixBox{width:min(900px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.97);border:1px solid rgba(80,170,255,.35);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
+.patchModalFixBox{width:min(900px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.97);border:1px solid rgba(80,170,255,.35);border-radius:26px;box-shadow:0 18px 48px rgba(0,0,0,.42)}
 .patchModalFixHead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.1)}
 .patchModalFixHead b{font-size:20px;color:#fff}
 .patchModalFixClose{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}
@@ -301,10 +301,31 @@ footer{position:relative;z-index:10;background:rgba(8,6,9,.9);border-top:1px sol
 .patchModalCallout.info{border-left-color:#38bdf8;background:rgba(56,189,248,.09)}
 .news-card,.patchnoteCard{cursor:pointer}
 
+
+/* Turn City performance fix */
+*{scroll-behavior:auto!important}
+.bg-slide,.bg-video,.patchModalFix,.patch-modal{will-change:auto!important}
+.patchModalFix,.patch-modal{backdrop-filter:none!important}
+.news-card,.patchnoteCard{transform:translateZ(0)}
+.news-card:hover,.patchnoteCard:hover{transform:translateY(-3px)}
+body.modal-open{overflow:hidden}
+
 </style>
 <script>
 (function(){try{const c=JSON.parse(localStorage.getItem('mochi_assets')||'{}');if(c.bgVideo&&c.bgVideo!=='_none_'){const l=document.createElement('link');l.rel='preload';l.as='video';l.href=c.bgVideo;document.head.appendChild(l);}else if(c.bgSlides&&c.bgSlides.length){const l=document.createElement('link');l.rel='preload';l.as='image';l.href=c.bgSlides[0];document.head.appendChild(l);}}catch{}})();
 </script>
+
+<script>
+/* Turn City global markdown helper fix */
+window.preprocessMarkdown = window.preprocessMarkdown || function(md){
+  return String(md || '').replace(/:::([a-zA-Z가-힣]+)\n([\s\S]*?):::/g, function(_, type, body){
+    var cls = String(type || 'info').toLowerCase();
+    var inner = (window.marked && window.marked.parse) ? window.marked.parse(String(body || '').trim()) : String(body || '');
+    return '<div class="patchModalCallout ' + cls + '">' + inner + '</div>';
+  });
+};
+</script>
+
 </head>
 <body>
 
@@ -611,6 +632,17 @@ document.addEventListener('click',e=>{
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
   else load();
 })();
+</script>
+
+
+<script>
+/* Turn City old modal error guard */
+window.addEventListener('error', function(e){
+  if(String(e.message || '').includes('preprocessMarkdown')){
+    e.preventDefault();
+    console.warn('[TurnCity] preprocessMarkdown fallback handled');
+  }
+});
 </script>
 
 </body>
