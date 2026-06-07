@@ -274,6 +274,33 @@ footer{position:relative;z-index:10;background:rgba(8,6,9,.9);border-top:1px sol
 .detail-content .callout-danger,.pm-md .callout-danger{background:rgba(248,113,113,.08);border-color:#f87171}
 .detail-content .callout-info,.pm-md .callout-info{background:rgba(56,189,248,.08);border-color:#38bdf8}
 
+
+/* Turn City patchnote modal fix */
+.patchModalFix{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patchModalFix.open{display:flex}
+.patchModalFixBox{width:min(900px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.97);border:1px solid rgba(80,170,255,.35);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
+.patchModalFixHead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.1)}
+.patchModalFixHead b{font-size:20px;color:#fff}
+.patchModalFixClose{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}
+.patchModalFixBody{padding:24px}
+.patchModalFixMeta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:rgba(255,255,255,.55);font-size:12px;margin-bottom:16px}
+.patchModalFixTag{display:inline-flex;padding:5px 10px;border-radius:999px;background:rgba(47,125,255,.16);color:#9cc8ff;font-weight:900;font-size:11px}
+.patchModalFixContent{color:rgba(255,255,255,.76);font-size:15px;line-height:1.85;word-break:break-word}
+.patchModalFixContent h1,.patchModalFixContent h2,.patchModalFixContent h3{color:#fff;margin:24px 0 12px;line-height:1.3}
+.patchModalFixContent h1{font-size:28px}.patchModalFixContent h2{font-size:23px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)}.patchModalFixContent h3{font-size:19px}
+.patchModalFixContent p{margin:10px 0}.patchModalFixContent ul,.patchModalFixContent ol{padding-left:22px;margin:10px 0;display:flex;flex-direction:column;gap:5px}
+.patchModalFixContent blockquote{margin:14px 0;padding:12px 18px;border-left:4px solid #2f7dff;background:rgba(47,125,255,.08);border-radius:0 10px 10px 0;color:rgba(255,255,255,.78)}
+.patchModalFixContent code{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);padding:2px 6px;border-radius:6px;color:#aeeaff}
+.patchModalFixContent pre{background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;overflow:auto;margin:14px 0}
+.patchModalFixContent pre code{background:none;border:0;padding:0}
+.patchModalFixContent img{max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.1);margin:14px 0}
+.patchModalCallout{margin:14px 0;padding:14px 16px;border-radius:13px;border-left:4px solid #2f7dff;background:rgba(47,125,255,.08)}
+.patchModalCallout.warning{border-left-color:#fb923c;background:rgba(251,146,60,.09)}
+.patchModalCallout.success,.patchModalCallout.tip{border-left-color:#4ade80;background:rgba(74,222,128,.09)}
+.patchModalCallout.danger{border-left-color:#f87171;background:rgba(248,113,113,.09)}
+.patchModalCallout.info{border-left-color:#38bdf8;background:rgba(56,189,248,.09)}
+.news-card,.patchnoteCard{cursor:pointer}
+
 </style>
 <script>
 (function(){try{const c=JSON.parse(localStorage.getItem('mochi_assets')||'{}');if(c.bgVideo&&c.bgVideo!=='_none_'){const l=document.createElement('link');l.rel='preload';l.as='video';l.href=c.bgVideo;document.head.appendChild(l);}else if(c.bgSlides&&c.bgSlides.length){const l=document.createElement('link');l.rel='preload';l.as='image';l.href=c.bgSlides[0];document.head.appendChild(l);}}catch{}})();
@@ -479,5 +506,112 @@ document.addEventListener('click',e=>{
   }
 });
 </script>
+
+<div class="patchModalFix" id="patchModalFix" onclick="if(event.target===this)closePatchModalFix()">
+  <div class="patchModalFixBox">
+    <div class="patchModalFixHead">
+      <b id="patchModalFixTitle">패치노트</b>
+      <button class="patchModalFixClose" onclick="closePatchModalFix()">✕</button>
+    </div>
+    <div class="patchModalFixBody" id="patchModalFixBody"></div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  let PATCHES_FIX = [];
+  const CACHE_KEY = "turncity_patchnote_page_fix_v1";
+
+  function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+  function dateOf(p){if(p.createdAt?.seconds)return new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR');return p.date||'';}
+  function tagOf(tags){const t=(tags||[])[0]||'patch';return ({new:'신규',fix:'버그수정',change:'변경',remove:'삭제',patch:'패치노트'})[t]||'패치노트';}
+  function descOf(p){const b=(p.blocks||[]).find(x=>x.type==='text');return (b?.text||'').replace(/[#*_>`\[\]~\-]/g,'').replace(/\s+/g,' ').slice(0,120)||'클릭해서 자세히 보기';}
+  function preprocess(md){
+    return String(md||'').replace(/:::([a-zA-Z가-힣]+)\n([\s\S]*?):::/g,(m,type,body)=>`<div class="patchModalCallout ${type.toLowerCase()}">${renderMd(body.trim())}</div>`);
+  }
+  function renderMd(md){
+    const raw = String(md||'');
+    if(typeof marked !== 'undefined'){
+      return marked.parse(raw);
+    }
+    return '<p>'+esc(raw)+'</p>';
+  }
+  function renderBlock(b){
+    if(!b) return '';
+    if(b.type === 'image') return `<img src="${esc(b.url||'')}" alt="">`;
+    if(b.type === 'callout') return `<div class="patchModalCallout ${esc(b.callout_type||'info')}">${renderMd(b.text||'')}</div>`;
+    const processed = preprocess(b.text || '');
+    return `<div>${typeof marked !== 'undefined' ? marked.parse(processed) : processed}</div>`;
+  }
+  function modalHtml(p){
+    return `<div class="patchModalFixMeta"><span class="patchModalFixTag">${tagOf(p.tags)}</span><span>${esc(dateOf(p))}</span></div>
+    <div class="patchModalFixContent">${(p.blocks||[]).map(renderBlock).join('') || '<p>내용이 없습니다.</p>'}</div>`;
+  }
+  window.openPatchModalFix = function(i){
+    const p = PATCHES_FIX[i];
+    if(!p) return;
+    document.getElementById('patchModalFixTitle').textContent = p.title || p.ver || '패치노트';
+    document.getElementById('patchModalFixBody').innerHTML = modalHtml(p);
+    document.getElementById('patchModalFix').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closePatchModalFix = function(){
+    const m = document.getElementById('patchModalFix');
+    if(m) m.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  function attachCardClicks(){
+    const cards = [...document.querySelectorAll('.news-card,.patchnoteCard,.nc-card,.patch-card')];
+    cards.forEach((card,i)=>{
+      card.style.cursor='pointer';
+      card.addEventListener('click', (e)=>{
+        if(e.target.closest('a,button')) return;
+        window.openPatchModalFix(i);
+      }, {capture:true});
+    });
+  }
+  function rerenderCommonCards(){
+    // If page has newsGrid generated by older script, just attach click.
+    const grid = document.getElementById('newsGrid') || document.getElementById('mainPatchnoteGrid');
+    if(!grid) { attachCardClicks(); return; }
+    // Only rebuild if empty/loading.
+    const isEmpty = !grid.children.length || /불러오는 중|소식이 없습니다|패치노트가 없습니다/.test(grid.textContent);
+    if(!isEmpty) { attachCardClicks(); return; }
+    grid.innerHTML = PATCHES_FIX.map((p,i)=>{
+      const img = (p.blocks||[]).find(b=>b.type==='image')?.url;
+      return `<article class="news-card" onclick="openPatchModalFix(${i})">
+        <div class="nc-thumb">${img?`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<div class="nc-thumb-ph">🏙️</div>'}</div>
+        <div class="nc-body">
+          <div class="nc-meta"><span class="nc-tag">${tagOf(p.tags)}</span><span class="nc-date">${esc(dateOf(p))}</span></div>
+          <div class="nc-title">${esc(p.title||p.ver||'패치노트')}</div>
+          <div class="nc-desc">${esc(descOf(p))}</div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+  async function load(){
+    try{
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+      if(cached && Date.now()-cached.ts<30000 && cached.data?.length){
+        PATCHES_FIX = cached.data;
+        setTimeout(rerenderCommonCards, 300);
+      }
+    }catch{}
+    try{
+      const r = await fetch('/api/patches',{cache:'no-store'});
+      const d = await r.json();
+      PATCHES_FIX = (d.patches||[]).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),data:PATCHES_FIX}));
+      setTimeout(rerenderCommonCards, 300);
+      setTimeout(attachCardClicks, 800);
+    }catch(e){console.warn('[patch modal fix]', e);}
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')window.closePatchModalFix();});
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+  else load();
+})();
+</script>
+
 </body>
 </html>
