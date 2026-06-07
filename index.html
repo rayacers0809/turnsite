@@ -41,7 +41,7 @@
 
 /* Turn City patchnote preview cards */
 .patch-card-click{cursor:pointer}
-.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:none;display:none;align-items:center;justify-content:center;padding:20px}
 .patch-modal.open{display:flex}
 .patch-modal-box{width:min(820px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.96);border:1px solid var(--line2);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
 .patch-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)}
@@ -154,7 +154,7 @@
   border:1px solid var(--line);
   border-radius:20px;
 }
-.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px}
+.patch-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:none;display:none;align-items:center;justify-content:center;padding:20px}
 .patch-modal.open{display:flex}
 .patch-modal-box{width:min(820px,calc(100vw - 32px));max-height:86vh;overflow:auto;background:rgba(9,20,36,.96);border:1px solid var(--line2);border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.58)}
 .patch-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)}
@@ -213,10 +213,149 @@
   display:block;
 }
 
+
+/* FINAL Turn City background asset fix */
+.tcAssetBgImage{
+  position:fixed!important;
+  inset:0!important;
+  z-index:-999!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+.tcAssetBgImage:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(to bottom,rgba(2,8,18,.32),rgba(2,8,18,.72)),
+    linear-gradient(to right,rgba(2,8,18,.76),rgba(2,8,18,.20),rgba(2,8,18,.76));
+}
+.tcAssetBgVideo{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  z-index:-1000!important;
+  display:none;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+.tcAssetBgVideo.isOn{display:block!important}
+body:before{opacity:.15!important}
+body:after{opacity:.25!important}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
 <body>
+
+<script>
+/* FINAL Turn City assets loader */
+(function(){
+  window.addEventListener('error', function(e){
+    if(String(e.message||'').includes("Cannot set properties of null")){
+      e.preventDefault();
+      console.warn("[TurnCity] ignored old null element error:", e.message);
+    }
+  });
+
+  function setBgImage(url){
+    var layer = document.getElementById('tcAssetBgImage');
+    if(layer && url) layer.style.backgroundImage = 'url("' + String(url).replace(/"/g, '\\"') + '")';
+  }
+
+  function setBgVideo(url){
+    var video = document.getElementById('tcAssetBgVideo');
+    if(!video || !url) return;
+    video.src = url;
+    video.classList.add('isOn');
+    video.play && video.play().catch(function(){});
+  }
+
+  function startSlides(slides, interval){
+    if(!Array.isArray(slides) || !slides.length) return;
+    var i = 0;
+    setBgImage(slides[0]);
+    if(slides.length > 1){
+      setInterval(function(){
+        i = (i + 1) % slides.length;
+        setBgImage(slides[i]);
+      }, Math.max(2, Number(interval || 6)) * 1000);
+    }
+  }
+
+  function safeHref(id, href){
+    var el = document.getElementById(id);
+    if(el && href) el.href = href;
+  }
+
+  function safeSrc(id, src){
+    var el = document.getElementById(id);
+    if(el && src) el.src = src;
+  }
+
+  async function loadAssets(){
+    try{
+      var res = await fetch('/api/assets', {cache:'no-store'});
+      var a = await res.json();
+
+      if(a.bgVideoUrl) setBgVideo(a.bgVideoUrl);
+      if(a.bgSlides && a.bgSlides.length) startSlides(a.bgSlides, a.bgInterval);
+      else if(a.defaultThumbUrl) setBgImage(a.defaultThumbUrl);
+
+      if(a.iconUrl){
+        safeSrc('siteIcon', a.iconUrl);
+        safeSrc('navIcon', a.iconUrl);
+        safeSrc('brandIcon', a.iconUrl);
+      }
+
+      console.log('[TurnCity] assets applied', a);
+    }catch(err){
+      console.warn('[TurnCity] assets failed', err);
+    }
+  }
+
+  async function loadSettings(){
+    try{
+      var res = await fetch('/api/settings', {cache:'no-store'});
+      var s = await res.json();
+
+      safeHref('discordTop', s.discordUrl);
+      safeHref('discordBtn', s.discordUrl);
+      safeHref('discordHero', s.discordUrl);
+
+      var connect = s.connectUrl || 'sv.dolp.kr';
+      ['startTop','startHero','gameStart','connectBtn'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.href = 'fivem://connect/' + connect;
+      });
+
+      console.log('[TurnCity] settings applied', s);
+    }catch(err){
+      console.warn('[TurnCity] settings failed', err);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      loadAssets();
+      loadSettings();
+    });
+  }else{
+    loadAssets();
+    loadSettings();
+  }
+})();
+</script>
+
+
+<div id="tcAssetBgImage" class="tcAssetBgImage"></div>
+<video id="tcAssetBgVideo" class="tcAssetBgVideo" autoplay muted loop playsinline></video>
+
 
 <div id="tcBgLayer" class="tc-bg-layer"></div>
 <video id="tcBgVideo" class="tc-bg-video" autoplay muted loop playsinline></video>
@@ -309,7 +448,7 @@ function patchHtml(p){
 }
 function openPatchPreview(i){
   const p=TC_PATCHES[i]; if(!p)return;
-  document.getElementById('patchPreviewTitle').textContent=p.title||p.ver||'패치노트';
+  { const __tcEl=document.getElementById('patchPreviewTitle'); if(__tcEl) __tcEl.textContent=p.title||p.ver||'패치노트'; }
   document.getElementById('patchPreviewBody').innerHTML=patchHtml(p);
   document.getElementById('patchPreviewModal').classList.add('open');
   document.body.style.overflow='hidden';
