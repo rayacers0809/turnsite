@@ -194,15 +194,15 @@
 
       <div class="row">
         <div class="field"><label class="lab">고번<span class="req">*</span></label>
-          <input type="text" id="gobun" inputmode="numeric" placeholder="123" /></div>
+          <input type="text" id="gobun" inputmode="numeric" placeholder="" /></div>
         <div class="field"><label class="lab">닉네임<span class="req">*</span></label>
-          <input type="text" id="nick" placeholder="인게임 닉네임" /></div>
+          <input type="text" id="nick" placeholder="" /></div>
       </div>
       <div class="row">
         <div class="field"><label class="lab">OOC 성별<span class="req">*</span></label>
           <select id="gender"><option value="">선택</option><option>남성</option><option>여성</option></select></div>
         <div class="field"><label class="lab">OOC 나이<span class="req">*</span></label>
-          <input type="number" id="age" min="1" max="99" placeholder="21" /></div>
+          <input type="number" id="age" min="1" max="99" placeholder="" /></div>
       </div>
     </section>
 
@@ -213,9 +213,9 @@
 
       <div class="row">
         <div class="field"><label class="lab">평일 접속<span class="req">*</span></label>
-          <input type="text" id="weekday" placeholder="19:00 — 24:00" /></div>
+          <input type="text" id="weekday" placeholder="" /></div>
         <div class="field"><label class="lab">주말 접속<span class="req">*</span></label>
-          <input type="text" id="weekend" placeholder="14:00 — 02:00" /></div>
+          <input type="text" id="weekend" placeholder="" /></div>
       </div>
 
       <div class="field"><label class="lab">마이크<span class="req">*</span></label>
@@ -238,7 +238,7 @@
         </div></div>
 
       <div class="field"><label class="lab">뉴비도우미 경력<span class="req">*</span><span class="hint">없으면 ‘없음’</span></label>
-        <textarea id="career" placeholder="이전 서버 · 활동 기간 · 담당 역할 등"></textarea></div>
+        <textarea id="career" placeholder=""></textarea></div>
     </section>
 
     <!-- 03 -->
@@ -249,7 +249,7 @@
         <label class="lab" style="font-size:14.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:600;line-height:1.7">
           디스코드 별명 예시 <b style="color:var(--brass)">[ 홍길동 / 123 / 실업자 ]</b> 올바르게 변경해주세요.<span class="req">*</span>
         </label>
-        <input type="text" id="dnick" placeholder="닉네임 / 고번 / 직업" />
+        <input type="text" id="dnick" placeholder="" />
       </div>
     </section>
 
@@ -259,7 +259,7 @@
         <div><h3 class="sec-title">다짐과 동의</h3><div class="sec-sub">마지막 단계</div></div></div>
 
       <div class="field"><label class="lab">마지막 다짐<span class="req">*</span></label>
-        <textarea id="oath" placeholder="뉴비도우미가 된다면 어떻게 행동하실지 다짐을 적어주세요."></textarea></div>
+        <textarea id="oath" placeholder=""></textarea></div>
 
       <label class="agree">
         <input type="checkbox" id="agree">
@@ -405,7 +405,22 @@
       평일접속:val("weekday"), 주말접속:val("weekend"), 마이크:radio("mic"), 녹화:radio("rec"),
       RP이해도:radio("rp"), 경력:val("career"), 디스코드별명:val("dnick"),
       다짐:val("oath"), 접률동의:$("agree").checked };
-  
+  }
+  function validate(d){
+    if(!d.고번) return "고번을 입력해 주세요.";
+    if(!d.닉네임) return "닉네임을 입력해 주세요.";
+    if(!d.OOC성별) return "OOC 성별을 선택해 주세요.";
+    if(!d.OOC나이) return "OOC 나이를 입력해 주세요.";
+    if(!d.평일접속) return "평일 접속시간대를 입력해 주세요.";
+    if(!d.주말접속) return "주말 접속시간대를 입력해 주세요.";
+    if(!d.마이크) return "마이크 사용 여부를 선택해 주세요.";
+    if(!d.녹화) return "녹화 사용 여부를 선택해 주세요.";
+    if(!d.RP이해도) return "RP 이해도를 선택해 주세요.";
+    if(!d.경력) return "뉴비도우미 경력을 입력해 주세요. (없으면 ‘없음’)";
+    if(!d.디스코드별명) return "디스코드 별명을 입력해 주세요.";
+    if(d.다짐.length < 10) return "마지막 다짐을 10자 이상 적어주세요.";
+    if(!d.접률동의) return "접률 관련 동의에 체크해 주세요.";
+    return null;
   }
   function showErr(m){ var e=$("errBox"); e.textContent=m; e.style.display="block"; e.scrollIntoView({behavior:"smooth",block:"center"}); }
   function hideErr(){ $("errBox").style.display="none"; }
