@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TURN CITY · 뉴비도우미 지원</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0C0B0A;            /* warm obsidian */
+    --bg-2:#100F0D;
+    --line:rgba(201,168,106,.14);   /* brass hairline */
+    --line-soft:rgba(237,233,224,.08);
+    --line-strong:rgba(201,168,106,.4);
+    --paper:#EDE9E0;        /* warm off-white */
+    --text:#E7E2D8;
+    --muted:#938C80;
+    --faint:#605A50;
+    --brass:#C9A86A;
+    --brass-dim:#A88A52;
+    --danger:#D98C7A;
+    --serif:"Noto Serif KR",serif;
+    --sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+    --maxw:600px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;color:var(--text);font-family:var(--sans);line-height:1.7;
+    -webkit-font-smoothing:antialiased;letter-spacing:.1px;
+    background:
+      radial-gradient(120% 80% at 50% -20%, rgba(201,168,106,.06), transparent 55%),
+      radial-gradient(100% 60% at 50% 120%, rgba(201,168,106,.04), transparent 60%),
+      var(--bg);
+  }
+  ::selection{background:rgba(201,168,106,.28);color:#fff}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 26px 110px}
+
+  /* ── Top bar ── */
+  .top{display:flex;align-items:center;justify-content:space-between;
+    padding:26px 0 0;font-size:11px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
+  .top .mono{font-family:var(--serif);font-size:15px;letter-spacing:.32em;color:var(--paper)}
+  .top .yr{color:var(--brass-dim)}
+
+  /* ── Hero ── */
+  .hero{padding:74px 0 0;animation:fade .9s ease both}
+  .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--brass);text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;margin-bottom:26px}
+  .eyebrow::before{content:"";width:30px;height:1px;background:var(--brass);opacity:.7}
+  .hero h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.42;
+    margin:0;letter-spacing:-.01em;color:var(--paper)}
+  .hero h1 .q{color:var(--brass);font-weight:500}
+  .lede{margin:30px 0 0;color:var(--muted);font-size:15px;max-width:480px;line-height:1.85}
+  .rule{height:1px;background:linear-gradient(90deg,var(--brass) 0%,transparent 70%);
+    opacity:.5;margin:54px 0 0}
+
+  /* ── Section ── */
+  .sec{padding:54px 0 0;animation:fade .9s ease both}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:34px}
+  .idx{font-family:var(--serif);font-size:13px;color:var(--brass);letter-spacing:.1em;
+    padding-top:2px;min-width:24px}
+  .sec-title{font-family:var(--serif);font-weight:500;font-size:21px;color:var(--paper);margin:0;line-height:1.3}
+  .sec-sub{font-size:12.5px;color:var(--faint);margin-top:4px;letter-spacing:.02em}
+
+  /* ── Fields (underline editorial) ── */
+  .field{margin-bottom:32px}
+  .field:last-child{margin-bottom:0}
+  .lab{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:11px;font-weight:500}
+  .lab .req{color:var(--brass);margin-left:5px}
+  .lab .hint{text-transform:none;letter-spacing:.02em;color:var(--faint);margin-left:9px;font-size:11px}
+
+  input[type=text],input[type=number],textarea,select{
+    width:100%;background:transparent;color:var(--text);font-family:inherit;
+    border:none;border-bottom:1px solid var(--line-soft);border-radius:0;
+    padding:9px 2px;font-size:15px;outline:none;letter-spacing:.01em;
+    transition:border-color .3s ease}
+  input:focus,textarea:focus,select:focus{border-bottom-color:var(--brass)}
+  input::placeholder,textarea::placeholder{color:var(--faint);letter-spacing:.01em}
+  textarea{resize:vertical;min-height:90px;line-height:1.8}
+  select{appearance:none;cursor:pointer;padding-right:26px;color:var(--text);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23C9A86A' stroke-width='1.3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 2px center}
+  select option{background:var(--bg-2);color:var(--text)}
+
+  .row{display:flex;gap:30px}
+  .row .field{flex:1}
+  @media(max-width:520px){.row{flex-direction:column;gap:0}}
+
+  /* ── Segmented (refined) ── */
+  .seg{display:flex;gap:10px;flex-wrap:wrap}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{flex:1;min-width:68px;text-align:center;cursor:pointer;
+    border:1px solid var(--line-soft);border-radius:2px;
+    padding:11px 10px;font-size:13px;letter-spacing:.06em;color:var(--muted);
+    transition:.25s ease;user-select:none}
+  .seg label:hover{border-color:var(--line);color:var(--text)}
+  .seg input:checked + label{
+    border-color:var(--brass);color:var(--brass);
+    background:rgba(201,168,106,.07)}
+  .seg input:focus-visible + label{box-shadow:0 0 0 2px rgba(201,168,106,.3)}
+
+  /* ── Discord nick ── */
+  .nick-note{font-size:13px;color:var(--muted);margin:-6px 0 26px;line-height:1.8}
+  .nick-note b{color:var(--paper);font-weight:600;letter-spacing:.04em}
+  .nick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px}
+  @media(max-width:520px){.nick-grid{grid-template-columns:1fr;gap:0}}
+  .preview{margin-top:26px;padding:18px 20px;border:1px solid var(--line);
+    border-radius:3px;background:rgba(201,168,106,.03);
+    display:flex;align-items:center;gap:15px}
+  .preview .pl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .preview .pv{font-family:var(--serif);font-size:17px;color:var(--paper);margin-top:5px;letter-spacing:.02em}
+  .preview .at{font-family:var(--serif);font-size:20px;color:var(--brass);opacity:.6}
+
+  /* ── Agreement ── */
+  .agree{display:flex;gap:15px;align-items:flex-start;
+    border:1px solid var(--line);border-radius:3px;padding:20px;
+    background:rgba(201,168,106,.025)}
+  .agree input{margin-top:3px;width:17px;height:17px;accent-color:var(--brass);flex:0 0 auto;cursor:pointer}
+  .agree .t{font-size:13px;color:var(--muted);line-height:1.8}
+  .agree .t b{color:var(--text);font-weight:600}
+
+  .notice{font-size:13px;color:var(--muted);line-height:1.9;
+    border-left:1px solid var(--line-strong);padding:4px 0 4px 20px;margin-top:48px}
+  .notice em{font-style:normal;color:var(--paper)}
+
+  /* ── Submit ── */
+  .submit{width:100%;margin-top:40px;padding:18px;border:none;border-radius:3px;
+    font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;cursor:pointer;color:#14110A;background:var(--paper);
+    transition:.25s ease}
+  .submit:hover{background:#fff;letter-spacing:.22em}
+  .submit:active{transform:translateY(1px)}
+  .submit:disabled{opacity:.5;cursor:not-allowed;letter-spacing:.18em}
+
+  .foot-note{margin-top:18px;font-size:11px;color:var(--faint);text-align:center;letter-spacing:.04em}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  .errbox{display:none;margin-top:18px;font-size:13px;color:var(--danger);
+    border:1px solid rgba(217,140,122,.3);border-radius:3px;padding:13px 16px;
+    letter-spacing:.02em;background:rgba(217,140,122,.05)}
+
+  /* ── Success ── */
+  .done{display:none;text-align:center;padding:90px 10px 40px}
+  .done.show{display:block;animation:fade .8s ease both}
+  .seal{width:64px;height:64px;border-radius:50%;margin:0 auto 30px;
+    border:1px solid var(--brass);display:grid;place-items:center;
+    background:rgba(201,168,106,.05)}
+  .seal svg{width:28px;height:28px}
+  .done .eyebrow{justify-content:center}
+  .done .eyebrow::before{display:none}
+  .done h2{font-family:var(--serif);font-weight:500;font-size:27px;color:var(--paper);margin:0 0 18px}
+  .done p{color:var(--muted);font-size:14.5px;max-width:420px;margin:0 auto;line-height:1.9}
+  .vcode{margin:40px auto 0;max-width:300px;border:1px solid var(--line);
+    border-radius:3px;padding:22px}
+  .vcode .l{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .vcode .c{font-family:var(--serif);font-size:24px;letter-spacing:.14em;color:var(--brass);margin-top:10px}
+  .vcode .s{font-size:11px;color:var(--faint);margin-top:12px;letter-spacing:.02em}
+
+  .cap{margin-top:70px;text-align:center;font-size:10px;color:var(--faint);
+    letter-spacing:.26em;text-transform:uppercase}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <span class="mono">TURN CITY</span>
+    <span class="yr">MMXXVI</span>
+  </div>
+
+  <!-- ── 폼 ── -->
+  <div id="formView">
+
+    <section class="hero">
+      <div class="eyebrow">Newbie Helper · 뉴비도우미 모집</div>
+      <h1>서버의 <span class="q">첫인상</span>을<br>책임지실 분을 모십니다.</h1>
+      <p class="lede">뉴비도우미는 새로 오신 분들이 가장 먼저 마주하는 얼굴입니다. 그만큼 면접은 신중하게 진행됩니다. 아래 항목을 솔직하게 작성해 주세요.</p>
+      <div class="rule"></div>
+    </section>
+
+    <!-- 01 -->
+    <section class="sec">
+      <div class="sec-head"><span class="idx">Ⅰ</span>
+        <div><h3 class="sec-title">기본 정보</h3><div class="sec-sub">인게임 신원</div></div></div>
+
+      <div class="row">
+        <div class="field"><label class="lab">고번<span class="req">*</span></label>
+          <input type="text" id="gobun" inputmode="numeric" placeholder="123" /></div>
+        <div class="field"><label class="lab">닉네임<span class="req">*</span></label>
+          <input type="text" id="nick" placeholder="인게임 닉네임" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="lab">OOC 성별<span class="req">*</span></label>
+          <select id="gender"><option value="">선택</option><option>남성</option><option>여성</option></select></div>
+        <div class="field"><label class="lab">OOC 나이<span class="req">*</span></label>
+          <input type="number" id="age" min="1" max="99" placeholder="21" /></div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec">
+      <div class="sec-head"><span class="idx">Ⅱ</span>
+        <div><h3 class="sec-title">접속과 환경</h3><div class="sec-sub">접률 · 장비 · 이해도</div></div></div>
+
+      <div class="row">
+        <div class="field"><label class="lab">평일 접속<span class="req">*</span></label>
+          <input type="text" id="weekday" placeholder="19:00 — 24:00" /></div>
+        <div class="field"><label class="lab">주말 접속<span class="req">*</span></label>
+          <input type="text" id="weekend" placeholder="14:00 — 02:00" /></div>
+      </div>
+
+      <div class="field"><label class="lab">마이크<span class="req">*</span></label>
+        <div class="seg">
+          <input type="radio" name="mic" id="mic1" value="사용"><label for="mic1">사용</label>
+          <input type="radio" name="mic" id="mic2" value="미사용"><label for="mic2">미사용</label>
+        </div></div>
+
+      <div class="field"><label class="lab">녹화<span class="req">*</span><span class="hint">상황 증빙용</span></label>
+        <div class="seg">
+          <input type="radio" name="rec" id="rec1" value="사용"><label for="rec1">사용</label>
+          <input type="radio" name="rec" id="rec2" value="미사용"><label for="rec2">미사용</label>
+        </div></div>
+
+      <div class="field"><label class="lab">RP 이해도<span class="req">*</span></label>
+        <div class="seg">
+          <input type="radio" name="rp" id="rp1" value="상"><label for="rp1">상</label>
+          <input type="radio" name="rp" id="rp2" value="중"><label for="rp2">중</label>
+          <input type="radio" name="rp" id="rp3" value="하"><label for="rp3">하</label>
+        </div></div>
+
+      <div class="field"><label class="lab">뉴비도우미 경력<span class="req">*</span><span class="hint">없으면 ‘없음’</span></label>
+        <textarea id="career" placeholder="이전 서버 · 활동 기간 · 담당 역할 등"></textarea></div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec">
+      <div class="sec-head"><span class="idx">Ⅲ</span>
+        <div><h3 class="sec-title">디스코드 별명</h3><div class="sec-sub">서버 표기 형식</div></div></div>
+      <p class="nick-note">형식 <b>닉네임 / 고번 / 직업</b> · 아래 입력하면 표기 형식으로 자동 정리됩니다.</p>
+      <div class="nick-grid">
+        <div class="field" style="margin:0"><label class="lab">닉네임</label><input type="text" id="dNick" placeholder="홍길동" /></div>
+        <div class="field" style="margin:0"><label class="lab">고번</label><input type="text" id="dNum" inputmode="numeric" placeholder="123" /></div>
+        <div class="field" style="margin:0"><label class="lab">직업</label><input type="text" id="dJob" placeholder="백수" /></div>
+      </div>
+      <div class="preview">
+        <span class="at">@</span>
+        <div><div class="pl">표기 미리보기</div><div class="pv" id="nickPreview">홍길동 / 123 / 백수</div></div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec">
+      <div class="sec-head"><span class="idx">Ⅳ</span>
+        <div><h3 class="sec-title">다짐과 동의</h3><div class="sec-sub">마지막 단계</div></div></div>
+
+      <div class="field"><label class="lab">마지막 다짐<span class="req">*</span></label>
+        <textarea id="oath" placeholder="뉴비도우미가 된다면 어떻게 행동하실지 다짐을 적어주세요."></textarea></div>
+
+      <label class="agree">
+        <input type="checkbox" id="agree">
+        <span class="t"><b>접률 동의 ·</b> 작성한 접속 시간과 실제 접률 차이가 크면 경고 또는 해임될 수 있음에 동의합니다. 불가피한 사정이 있을 경우 휴가신청서를 작성하겠습니다.</span>
+      </label>
+
+      <div class="notice">
+        뉴비도우미는 서버의 첫인상을 결정하는 중요한 역할인 만큼, <em>면접이 신중하게 진행</em>됩니다.
+        지원해 주셔서 감사드립니다. 결과는 검토 후 안내드리겠습니다.
+      </div>
+    </section>
+
+    <div class="hp"><label>홈페이지<input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
+
+    <button class="submit" id="submitBtn">지원서 제출</button>
+    <div class="errbox" id="errBox"></div>
+    <div class="foot-note">제출 시 입력 내용으로 SHA-256 검증 코드가 함께 기록됩니다.</div>
+  </div>
+
+  <!-- ── 완료 ── -->
+  <div class="done" id="doneView">
+    <div class="seal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 6.5" stroke="#C9A86A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="eyebrow">Received</div>
+    <h2>지원서가 접수되었습니다</h2>
+    <p>지원해 주셔서 감사드립니다. 결과는 검토 후 안내드릴 예정이니 조금만 기다려 주시길 바랍니다.</p>
+    <div class="vcode">
+      <div class="l">지원 검증 코드</div>
+      <div class="c" id="vcodeOut">—</div>
+      <div class="s">위변조 검증용 코드입니다. 캡처해 두시길 권합니다.</div>
+    </div>
+  </div>
+
+  <div class="cap">TURN CITY</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var _w = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUxOTMyMzk3NDYxMjQyMjY4Ny9ZajNVMnFBOGR1eGpqekNNUkpkblBKeFgwWEZyR09zb1A3TUlkRWtKbkRyaUdYRnZVdGJqTEhYV0hCZUZmRjVRSURqOQ==";
+  var WEBHOOK = atob(_w);
+
+  /* ── SHA 보안 설정 ─────────────────────────
+     POW_ZEROS : 작업증명 난이도(앞자리 16진수 0 개수). 높일수록 채굴이 오래 걸림.
+                 실측(브라우저 ≈5만 hash/s): 4 ≈ 평균 1~2초 / 5 ≈ 평균 20초+ / 6 ≈ 수 분.
+                 4 권장. 봇 대량제출 비용을 올리는 용도.
+     HMAC 비밀키: 폼 제출 서명용. 소스에 들어가므로 base64로 묶어둠.        ── */
+  var POW_ZEROS = 4;
+  var SECRET = atob("VFVSTkNJVFktTkVXQklFLTIwMjYtU0lHTklORy1LRVk=");  // 원하면 교체
+
+  var COOLDOWN_MS = 60000, MIN_FILL_MS = 4000, loadTime = Date.now();
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* 문자열 → UTF-8 바이트 문자열 (한글 대응) */
+  function utf8bytes(str){
+    var b=new TextEncoder().encode(str), s="";
+    for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]);
+    return s;
+  }
+
+  /* 동기식 SHA-256 (작업증명 루프용, public domain) */
+  function sha256sync(input){
+    var ascii=utf8bytes(input);
+    function rr(v,a){ return (v>>>a)|(v<<(32-a)); }
+    var maxWord=Math.pow(2,32), result="", words=[], bitLen=ascii.length*8;
+    var hash=sha256sync.h=sha256sync.h||[], k=sha256sync.k=sha256sync.k||[];
+    var pc=k.length, comp={};
+    for(var cand=2; pc<64; cand++){
+      if(!comp[cand]){
+        for(var i=0;i<313;i+=cand) comp[i]=cand;
+        hash[pc]=(Math.pow(cand,.5)*maxWord)|0;
+        k[pc++]=(Math.pow(cand,1/3)*maxWord)|0;
+      }
+    }
+    ascii+="\x80";
+    while(ascii.length%64-56) ascii+="\x00";
+    for(var i=0;i<ascii.length;i++){
+      var j=ascii.charCodeAt(i);
+      if(j>>8) return "";
+      words[i>>2]|=j<<((3-i)%4)*8;
+    }
+    words[words.length]=(bitLen/maxWord)|0;
+    words[words.length]=bitLen;
+    for(var j=0;j<words.length;){
+      var w=words.slice(j,j+=16), oldHash=hash;
+      hash=hash.slice(0,8);
+      for(var i=0;i<64;i++){
+        var w15=w[i-15], w2=w[i-2], a=hash[0], e=hash[4];
+        var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]
+          +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]
+          +(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+        var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+        hash=[(t1+t2)|0].concat(hash);
+        hash[4]=(hash[4]+t1)|0;
+      }
+      for(var i=0;i<8;i++) hash[i]=(hash[i]+oldHash[i])|0;
+    }
+    for(var i=0;i<8;i++)
+      for(var j=3;j+1;j--){
+        var b=(hash[i]>>(j*8))&255;
+        result+=((b<16)?0:"")+b.toString(16);
+      }
+    return result;
+  }
+
+  /* 작업증명 채굴: SHA256(prefix+nonce) 가 0*ZEROS 로 시작하는 nonce 탐색 (UI 안 멈추게 청크 처리) */
+  function mine(prefix, zeros, onProgress){
+    return new Promise(function(resolve){
+      var target=new Array(zeros+1).join("0"), nonce=0;
+      function step(){
+        var end=nonce+8000;
+        for(; nonce<end; nonce++){
+          var h=sha256sync(prefix+nonce);
+          if(h.slice(0,zeros)===target) return resolve({nonce:nonce, hash:h});
+        }
+        if(onProgress) onProgress(nonce);
+        setTimeout(step,0);
+      }
+      step();
+    });
+  }
+
+  /* HMAC-SHA256 서명 (위변조/위조 검증용) */
+  async function hmac(secret, msg){
+    var key=await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
+      {name:"HMAC",hash:"SHA-256"}, false, ["sign"]);
+    var sig=await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+    return Array.from(new Uint8Array(sig)).map(function(x){return x.toString(16).padStart(2,"0");}).join("");
+  }
+
+  function syncNick(){
+    var n=($("dNick").value||"홍길동").trim(), g=($("dNum").value||"123").trim(), j=($("dJob").value||"백수").trim();
+    $("nickPreview").textContent = n+" / "+g+" / "+j;
+  }
+  ["dNick","dNum","dJob"].forEach(function(id){ $(id).addEventListener("input", syncNick); });
+  $("gobun").addEventListener("input", function(){ if(!$("dNum").value){ $("dNum").value=this.value; syncNick(); }});
+  $("nick").addEventListener("input", function(){ if(!$("dNick").value){ $("dNick").value=this.value; syncNick(); }});
+
+  async function sha256(s){
+    var b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0");}).join("");
+  }
+  function val(id){ return ($(id).value||"").trim(); }
+  function radio(n){ var e=document.querySelector('input[name="'+n+'"]:checked'); return e?e.value:""; }
+
+  function collect(){
+    return { 고번:val("gobun"), 닉네임:val("nick"), OOC성별:val("gender"), OOC나이:val("age"),
+      평일접속:val("weekday"), 주말접속:val("weekend"), 마이크:radio("mic"), 녹화:radio("rec"),
+      RP이해도:radio("rp"), 경력:val("career"), 디스코드별명:$("nickPreview").textContent.trim(),
+      다짐:val("oath"), 접률동의:$("agree").checked };
+  }
+  function validate(d){
+    if(!d.고번) return "고번을 입력해 주세요.";
+    if(!d.닉네임) return "닉네임을 입력해 주세요.";
+    if(!d.OOC성별) return "OOC 성별을 선택해 주세요.";
+    if(!d.OOC나이) return "OOC 나이를 입력해 주세요.";
+    if(!d.평일접속) return "평일 접속시간대를 입력해 주세요.";
+    if(!d.주말접속) return "주말 접속시간대를 입력해 주세요.";
+    if(!d.마이크) return "마이크 사용 여부를 선택해 주세요.";
+    if(!d.녹화) return "녹화 사용 여부를 선택해 주세요.";
+    if(!d.RP이해도) return "RP 이해도를 선택해 주세요.";
+    if(!d.경력) return "뉴비도우미 경력을 입력해 주세요. (없으면 ‘없음’)";
+    if(d.다짐.length < 10) return "마지막 다짐을 10자 이상 적어주세요.";
+    if(!d.접률동의) return "접률 관련 동의에 체크해 주세요.";
+    return null;
+  }
+  function showErr(m){ var e=$("errBox"); e.textContent=m; e.style.display="block"; e.scrollIntoView({behavior:"smooth",block:"center"}); }
+  function hideErr(){ $("errBox").style.display="none"; }
+
+  var btn=$("submitBtn");
+  btn.addEventListener("click", async function(){
+    hideErr();
+    if($("website").value) return;
+    if(Date.now()-loadTime < MIN_FILL_MS) return showErr("잠시 후 다시 제출해 주세요.");
+    var last=Number(localStorage.getItem("tc_newbie_last")||0);
+    if(Date.now()-last < COOLDOWN_MS){
+      var s=Math.ceil((COOLDOWN_MS-(Date.now()-last))/1000);
+      return showErr("중복 제출 방지 중입니다. "+s+"초 후 다시 시도해 주세요.");
+    }
+    var data=collect(), err=validate(data);
+    if(err) return showErr(err);
+    btn.disabled=true;
+    try{
+      var ts=new Date().toISOString();
+      var payload=JSON.stringify(data)+"|"+ts;
+
+      // 1) 무결성 해시
+      var full=await sha256(payload);
+      var code=full.slice(0,12).toUpperCase();
+
+      // 2) 작업증명(PoW) — 봇 대량제출 비용 상승
+      btn.textContent="보안 검증 연산 중…";
+      var pow=await mine(full+"|", POW_ZEROS, function(n){
+        btn.textContent="보안 검증 연산 중… "+n.toLocaleString();
+      });
+
+      // 3) HMAC 서명 — 폼을 통한 정상 제출임을 증명
+      var sig=await hmac(SECRET, payload+"|"+pow.nonce);
+
+      btn.textContent="제출 중…";
+      var embed={
+        title:"뉴비도우미 지원서",
+        description:"**"+data.디스코드별명+"** 님의 지원서가 도착했습니다.",
+        color:0xC9A86A,
+        fields:[
+          {name:"고번 / 닉네임", value:"`"+data.고번+"` / "+data.닉네임, inline:true},
+          {name:"OOC 성별 / 나이", value:data.OOC성별+" / "+data.OOC나이+"세", inline:true},
+          {name:"RP 이해도", value:data.RP이해도, inline:true},
+          {name:"평일 접속", value:data.평일접속, inline:true},
+          {name:"주말 접속", value:data.주말접속, inline:true},
+          {name:"마이크 / 녹화", value:data.마이크+" / "+data.녹화, inline:true},
+          {name:"뉴비도우미 경력", value:data.경력.slice(0,1000)},
+          {name:"마지막 다짐", value:data.다짐.slice(0,1000)},
+          {name:"접률 동의", value:data.접률동의?"✅ 동의함":"❌ 미동의", inline:true},
+          {name:"디스코드 별명", value:"`"+data.디스코드별명+"`", inline:true},
+          {name:"🔐 보안", value:"검증코드 `"+code+"`\nPoW nonce `"+pow.nonce+"` ("+POW_ZEROS+"자리)\nHMAC `"+sig.slice(0,32)+"…`"}
+        ],
+        footer:{text:"SHA-256 "+full.slice(0,24)+"… · PoW "+pow.hash.slice(0,12)},
+        timestamp:ts
+      };
+      var res=await fetch(WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({username:"TURN CITY 지원서",content:"새 뉴비도우미 지원서 접수",embeds:[embed]})});
+      if(!res.ok) throw new Error("webhook "+res.status);
+      localStorage.setItem("tc_newbie_last", String(Date.now()));
+      $("vcodeOut").textContent=code;
+      $("formView").style.display="none";
+      $("doneView").classList.add("show");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }catch(e){
+      console.error(e); btn.disabled=false; btn.textContent="지원서 제출";
+      showErr("제출 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+  });
+  syncNick();
+})();
+</script>
+</body>
+</html>
