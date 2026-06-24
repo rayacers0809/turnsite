@@ -245,15 +245,11 @@
     <section class="sec">
       <div class="sec-head"><span class="idx">Ⅲ</span>
         <div><h3 class="sec-title">디스코드 별명</h3><div class="sec-sub">서버 표기 형식</div></div></div>
-      <p class="nick-note">형식 <b>닉네임 / 고번 / 직업</b> · 아래 입력하면 표기 형식으로 자동 정리됩니다.</p>
-      <div class="nick-grid">
-        <div class="field" style="margin:0"><label class="lab">닉네임</label><input type="text" id="dNick" placeholder="홍길동" /></div>
-        <div class="field" style="margin:0"><label class="lab">고번</label><input type="text" id="dNum" inputmode="numeric" placeholder="123" /></div>
-        <div class="field" style="margin:0"><label class="lab">직업</label><input type="text" id="dJob" placeholder="백수" /></div>
-      </div>
-      <div class="preview">
-        <span class="at">@</span>
-        <div><div class="pl">표기 미리보기</div><div class="pv" id="nickPreview">홍길동 / 123 / 백수</div></div>
+      <div class="field" style="margin:0">
+        <label class="lab" style="font-size:14.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:600;line-height:1.7">
+          디스코드 별명 예시 <b style="color:var(--brass)">[ 홍길동 / 123 / 실업자 ]</b> 올바르게 변경해주세요.<span class="req">*</span>
+        </label>
+        <input type="text" id="dnick" placeholder="닉네임 / 고번 / 직업" />
       </div>
     </section>
 
@@ -395,13 +391,7 @@
     return Array.from(new Uint8Array(sig)).map(function(x){return x.toString(16).padStart(2,"0");}).join("");
   }
 
-  function syncNick(){
-    var n=($("dNick").value||"홍길동").trim(), g=($("dNum").value||"123").trim(), j=($("dJob").value||"백수").trim();
-    $("nickPreview").textContent = n+" / "+g+" / "+j;
-  }
-  ["dNick","dNum","dJob"].forEach(function(id){ $(id).addEventListener("input", syncNick); });
-  $("gobun").addEventListener("input", function(){ if(!$("dNum").value){ $("dNum").value=this.value; syncNick(); }});
-  $("nick").addEventListener("input", function(){ if(!$("dNick").value){ $("dNick").value=this.value; syncNick(); }});
+  function syncNick(){}
 
   async function sha256(s){
     var b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -413,7 +403,7 @@
   function collect(){
     return { 고번:val("gobun"), 닉네임:val("nick"), OOC성별:val("gender"), OOC나이:val("age"),
       평일접속:val("weekday"), 주말접속:val("weekend"), 마이크:radio("mic"), 녹화:radio("rec"),
-      RP이해도:radio("rp"), 경력:val("career"), 디스코드별명:$("nickPreview").textContent.trim(),
+      RP이해도:radio("rp"), 경력:val("career"), 디스코드별명:val("dnick"),
       다짐:val("oath"), 접률동의:$("agree").checked };
   }
   function validate(d){
@@ -427,6 +417,7 @@
     if(!d.녹화) return "녹화 사용 여부를 선택해 주세요.";
     if(!d.RP이해도) return "RP 이해도를 선택해 주세요.";
     if(!d.경력) return "뉴비도우미 경력을 입력해 주세요. (없으면 ‘없음’)";
+    if(!d.디스코드별명) return "디스코드 별명을 입력해 주세요.";
     if(d.다짐.length < 10) return "마지막 다짐을 10자 이상 적어주세요.";
     if(!d.접률동의) return "접률 관련 동의에 체크해 주세요.";
     return null;
