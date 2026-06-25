@@ -1,5 +1,4 @@
-const CFX_CODE = "xlzdevr";
-const CFX_API = `https://servers-frontend.fivem.net/api/servers/single/${CFX_CODE}`;
+const FXSERVER = "http://101.250.105.35:30120";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -9,30 +8,30 @@ const CORS = {
 };
 
 export async function onRequestGet(context) {
+  // 환경변수 있으면 우선 사용
+  const base = context.env?.FXSERVER_URL || FXSERVER;
+
   try {
-    // cfx API에서 서버 정보 + 플레이어 목록 한번에 가져옴
-    const res = await fetch(CFX_API, {
-      headers: { "User-Agent": "Mozilla/5.0" }
-    });
-    if (!res.ok) throw new Error("cfx API " + res.status);
+    const [playersRes, infoRes, dynamicRes] = await Promise.all([
+      fetch(`${base}/players.json`),
+      fetch(`${base}/info.json`),
+      fetch(`${base}/dynamic.json`).catch(() => null)
+    ]);
 
-    const json = await res.json();
-    const data = json?.Data || json?.data || json;
+    if (!playersRes.ok) throw new Error("players.json " + playersRes.status);
 
-    const players = (data?.players || []).map((p, i) => ({
-      id: p.id ?? i + 1,
-      name: p.name || "Unknown",
-      ping: p.ping ?? null
-    }));
-
-    const maxPlayers = Number(data?.sv_maxclients) || Number(data?.maxClients) || 0;
-    const online = data !== null && data !== undefined;
+    const players = await playersRes.json();
+    const info = infoRes.ok ? await infoRes.json() : {};
+    const dynamic = dynamicRes?.ok ? await dynamicRes.json() : {};
+    const maxPlayers = Number(dynamic.sv_maxclients) || Number(info?.vars?.sv_maxClients) || 128;
 
     return Response.json({
-      online,
-      playerCount: players.length,
+      online: true,
+      playerCount: Array.isArray(players) ? players.length : 0,
       maxPlayers,
-      players
+      players: Array.isArray(players)
+        ? players.map((p, i) => ({ id: p.id ?? i + 1, name: p.name || "Unknown", ping: p.ping ?? null }))
+        : []
     }, { headers: CORS });
 
   } catch (e) {
