@@ -455,11 +455,10 @@ function setText(id,text){const el=$(id);if(el)el.textContent=text}
 </script>
 
 <script>
-/* ── cfx.re API 연동 ──
-   https://servers-frontend.fivem.net/api/servers/single/{code}
-   응답: { Data: { players:[{name,id,ping},...], sv_maxclients, ... } }
+/* ── 서버 상태 + 플레이어 ──
+   /api/status → status.js (Cloudflare Pages Function)
+   status.js 가 cfx.re API 를 서버사이드에서 호출해서 CORS 문제 없음
 */
-const CFX_API = "https://servers-frontend.fivem.net/api/servers/single/" + CFX_CODE;
 const PER_PAGE = 24;
 
 let plyrAll = [];
@@ -525,20 +524,26 @@ window.plyrGoPage = function(p){plyrPage=p;renderPlayerGrid()};
 
 async function fetchCfx(){
   try{
-    const r = await fetch(CFX_API, {cache:"no-store"});
+    // /api/status 는 status.js (서버사이드) 가 cfx API 프록시로 호출 → CORS 없음
+    const r = await fetch("/api/status?cb="+Date.now(), {cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    const j = await r.json();
-    const data = j?.Data || j?.data || j;
-    const players = data?.players || [];
-    const max = data?.sv_maxclients || data?.maxClients || 0;
+    const d = await r.json();
+
+    const players = d.players || [];
+    const max = d.maxPlayers || 0;
+    const online = d.online ?? (players.length > 0);
 
     // 히어로 스탯
-    setText("heroPlayersMain", String(players.length));
-    setText("heroPlayersSub", `실시간 접속 인원${max?" / 최대 "+max:""}`);
+    setText("heroPlayersMain", online ? String(d.playerCount ?? players.length) : "OFF");
+    setText("heroPlayersSub", online
+      ? `실시간 접속 인원${max?" / 최대 "+max:""}`
+      : "서버 오프라인");
 
     // 온라인 카운트
     const cnt = $("onlineCnt");
-    if(cnt) cnt.textContent = `${players.length}명 접속중${max?" / "+max:""}`;
+    if(cnt) cnt.textContent = online
+      ? `${d.playerCount ?? players.length}명 접속중${max?" / "+max:""}`
+      : "오프라인";
 
     plyrAll = players;
     plyrFiltered = [...players];
@@ -546,11 +551,11 @@ async function fetchCfx(){
     renderPlayerGrid();
 
   }catch(e){
-    console.warn("[cfx]", e);
-    setText("heroPlayersMain","OFF");
-    setText("heroPlayersSub","서버 상태 확인 불가");
+    console.warn("[status]", e);
+    setText("heroPlayersMain","ERR");
+    setText("heroPlayersSub","상태 확인 불가");
     const grid=$("playerGrid");
-    if(grid) grid.innerHTML='<div class="empty">⚠️ 서버 데이터를 불러올 수 없습니다<br><small style="color:var(--muted);margin-top:6px;display:block">cfx.re 연결 대기 중...</small></div>';
+    if(grid) grid.innerHTML='<div class="empty">⚠️ 서버 데이터를 불러올 수 없습니다<br><small style="color:var(--muted);margin-top:6px;display:block">/api/status 연결 확인 필요</small></div>';
   }
 }
 </script>
@@ -558,12 +563,18 @@ async function fetchCfx(){
 <script>
 /* ── 패치노트 로드 ── */
 let PATCHES = [];
+let ASSETS_ICON = ""; // 패치 썸네일 폴백용
 const TAG = {new:{c:"new",l:"신규"},fix:{c:"fix",l:"버그수정"},change:{c:"change",l:"변경"},remove:{c:"remove",l:"삭제"}};
 
 function tagOf(tags){const t=(tags||[])[0]||"change";return TAG[t]||{c:"change",l:"패치노트"}}
 function dateOf(p){if(p?.createdAt?.seconds)return new Date(p.createdAt.seconds*1000).toLocaleDateString("ko-KR");return p?.date||""}
 function descOf(p){const b=(p.blocks||[]).find(x=>x.type==="text");return(b?.text||"").replace(/[#*_>`\[\]~]/g,"").replace(/\s+/g," ").slice(0,90)||"클릭해서 보기"}
-function imgOf(p){return(p.blocks||[]).find(x=>x.type==="image")?.url||p.image||p.imageUrl||""}
+function imgOf(p){
+  return (p.blocks||[]).find(x=>x.type==="image")?.url
+    || p.image || p.imageUrl
+    || ASSETS_ICON  // ← 아이콘 폴백
+    || "";
+}
 
 async function loadPatches(){
   try{
@@ -641,6 +652,7 @@ async function loadAssets(){
     const a = await r.json();
 
     if(a.iconUrl){
+      ASSETS_ICON = a.iconUrl; // 패치 썸네일 폴백용
       const icon=$("siteIcon");
       if(icon){icon.src=a.iconUrl;icon.style.display="block"}
     }
@@ -658,6 +670,10 @@ async function loadAssets(){
       const img = Array.isArray(a.bgSlides)&&a.bgSlides.length ? a.bgSlides[0] : a.defaultThumbUrl||"";
       if(img) document.documentElement.style.setProperty("--custom-bg",`url("${img}")`);
     }
+
+    // 자산 로드 후 패치 카드 썸네일 재렌더 (이미 로드된 경우)
+    if(PATCHES.length) renderPatches(PATCHES.slice(0,3));
+
   }catch(e){console.warn("[assets]",e)}
 }
 
