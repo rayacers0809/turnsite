@@ -446,7 +446,7 @@ async function loadSettings(){
     // 주소 표시
     const addr = CONNECT_URL ? "connect " + CONNECT_URL.replace(/^connect\s+/i,"") : "cfx.re/join/xlzdevr";
     const fa = $("footAddress"); if(fa) fa.textContent = addr;
-    setText("heroConnectSub", CONNECT_URL ? "connect " + CONNECT_URL : "서버 주소 준비중");
+    setText("heroConnectSub", CONNECT_URL ? "connect " + CONNECT_URL : "cfx.re/join/xlzdevr");
     setText("heroConnectMain", "CONNECT");
   }catch(e){console.warn("[settings]",e)}
 }
