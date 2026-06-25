@@ -1,5 +1,3 @@
-const FXSERVER = "http://101.250.105.35:30120";
-
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,OPTIONS",
@@ -8,8 +6,17 @@ const CORS = {
 };
 
 export async function onRequestGet(context) {
-  // 환경변수 있으면 우선 사용
-  const base = context.env?.FXSERVER_URL || FXSERVER;
+  const base = context.env?.FXSERVER_URL;
+
+  if (!base) {
+    return Response.json({
+      online: false,
+      error: "FXSERVER_URL 환경변수가 설정되지 않았습니다",
+      playerCount: 0,
+      maxPlayers: 0,
+      players: []
+    }, { headers: CORS });
+  }
 
   try {
     const [playersRes, infoRes, dynamicRes] = await Promise.all([
