@@ -389,7 +389,7 @@ footer{border-top:1px solid var(--line);background:rgba(2,7,13,.82);margin-top:0
     </div>
     <div>
       <b>SERVER</b>
-      <p id="footAddress">connect 주소 준비중</p>
+      <p id="footAddress">cfx.re/join/xlzdevr</p>
     </div>
   </div>
   <div class="copyr">© 2026 Turn City. All rights reserved.</div>
@@ -444,7 +444,7 @@ async function loadSettings(){
       const el=$(id); if(el) el.href = fivem;
     });
     // 주소 표시
-    const addr = CONNECT_URL ? "connect " + CONNECT_URL.replace(/^connect\s+/i,"") : "서버 주소 준비중";
+    const addr = CONNECT_URL ? "connect " + CONNECT_URL.replace(/^connect\s+/i,"") : "cfx.re/join/xlzdevr";
     const fa = $("footAddress"); if(fa) fa.textContent = addr;
     setText("heroConnectSub", CONNECT_URL ? "connect " + CONNECT_URL : "서버 주소 준비중");
     setText("heroConnectMain", "CONNECT");
