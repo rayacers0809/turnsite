@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가이드 · TURN CITY</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="solid">
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="mark"></span><span class="name">TURN CITY</span></a>
+    <nav class="nav-center">
+      <a href="news.html">소식</a>
+      <a href="guide.html" class="active">가이드</a>
+      <a href="#">디스코드</a>
+    </nav>
+    <div class="nav-right"><a class="login" href="#">로그인</a><a class="btn-start" href="#">GAME START</a></div>
+  </div>
+</header>
+
+<div class="page-top"></div>
+
+<div class="wrap doc">
+  <aside class="side">
+    <div class="side-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="sideSearch" type="text" placeholder="검색..."><span class="kbd">Ctrl K</span>
+    </div>
+    <ul class="tree" id="tree"></ul>
+  </aside>
+
+  <main class="content page-fade" id="content"></main>
+
+  <nav class="toc" id="toc"></nav>
+</div>
+
+<footer data-auto></footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+  const groups = (window.TURN_DATA.guides.groups) || [];
+  const flat = TURN.guideFlat();
+  const params = new URLSearchParams(location.search);
+  const pageId = params.get("page") || (flat[0] && flat[0].id);
+  const current = TURN.guideById(pageId) || flat[0];
+
+  // ---- 사이드바 트리 ----
+  const tree = document.getElementById("tree");
+  const caret = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6-6 6"/></svg>';
+  tree.innerHTML = groups.map(g => `
+    <li>
+      <div class="grp">${g.title}</div>
+      <ul style="list-style:none">
+        ${g.items.map(it => it.items ? `
+          <li>
+            <div class="node ${it.items.some(c=>c.id===pageId)?'':'collapsed'}">${caret}${it.title}</div>
+            <ul class="children">
+              ${it.items.map(c => `<li><a href="guide.html?page=${c.id}"><div class="node ${c.id===pageId?'active':''}" style="padding-left:22px">${c.title}</div></a></li>`).join("")}
+            </ul>
+          </li>` : `
+          <li><a href="guide.html?page=${it.id}"><div class="node ${it.id===pageId?'active':''}">${it.title}</div></a></li>`
+        ).join("")}
+      </ul>
+    </li>`).join("");
+  // 접기 토글 (부모 노드만)
+  tree.querySelectorAll(".node").forEach(n => {
+    if (n.querySelector(".caret")) n.addEventListener("click", () => n.classList.toggle("collapsed"));
+  });
+  // 사이드 검색
+  document.getElementById("sideSearch").addEventListener("input", e => {
+    const q = e.target.value.trim().toLowerCase();
+    tree.querySelectorAll(".children li, .grp + ul > li").forEach(li => {
+      const t = li.textContent.toLowerCase();
+      li.style.display = (!q || t.includes(q)) ? "" : "none";
+    });
+  });
+
+  // ---- 본문 ----
+  const content = document.getElementById("content");
+  if (!current) {
+    content.innerHTML = "<h1>가이드가 없습니다.</h1>";
+  } else {
+    const idx = flat.findIndex(p => p.id === current.id);
+    const prev = flat[idx - 1], next = flat[idx + 1];
+    const crumbParts = [current.group, current.parent, current.title].filter(Boolean);
+    content.innerHTML = `
+      <div class="crumbs">${crumbParts.map((c, i) => `<span class="${i === crumbParts.length - 1 ? 'cur' : ''}">${c}</span>${i < crumbParts.length - 1 ? '<span class="sep">/</span>' : ''}`).join("")}</div>
+      <h1>${current.title}</h1>
+      ${TURN.renderBlocks(current.blocks)}
+      <nav class="page-nav">
+        ${prev ? `<a href="guide.html?page=${prev.id}"><div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 페이지</div><div class="t">${prev.title}</div></a>` : "<span></span>"}
+        ${next ? `<a class="next" href="guide.html?page=${next.id}"><div class="lbl">다음 페이지 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div><div class="t">${next.title}</div></a>` : "<span></span>"}
+      </nav>
+      ${current.updated ? `<div class="updated">마지막 업데이트: ${current.updated}</div>` : ""}`;
+    document.title = current.title + " · TURN CITY";
+    TURN.bindBlocks(content);
+    TURN.buildTOC(content, document.getElementById("toc"));
+  }
+</script>
+</body>
+</html>
