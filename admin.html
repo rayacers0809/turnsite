@@ -122,9 +122,11 @@
   <div class="spacer"></div>
   <button class="abtn" onclick="changePw()">비번변경</button>
   <button class="abtn" onclick="logout()">로그아웃</button>
-  <button class="abtn" onclick="loadOriginal()">원본 불러오기</button>
-  <label class="abtn" style="cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg>가져오기<input type="file" accept=".js,.json" style="display:none" onchange="importFile(event)"></label>
-  <button class="abtn primary" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>data.js 내보내기</button>
+  <button class="abtn" onclick="serverConfig()">서버 설정</button>
+  <button class="abtn" onclick="serverLoad()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 8l5-5 5 5M5 21h14" transform="rotate(180 12 12)"/></svg>서버 불러오기</button>
+  <button class="abtn primary" onclick="serverSave()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 15h8"/></svg>서버 저장</button>
+  <label class="abtn" style="cursor:pointer" title="파일에서 가져오기(data.js)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><input type="file" accept=".js,.json" style="display:none" onchange="importFile(event)"></label>
+  <button class="abtn" onclick="exportData()" title="data.js 백업 내보내기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></button>
 </div>
 
 <div class="admin-body">
@@ -171,6 +173,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
@@ -597,6 +600,46 @@ function doImport(){
   persist(); closeImport();
   document.getElementById("impText").value=""; document.getElementById("impTitle").value="";
   renderAll(); toast(blocks.length+"개 블록 가져옴");
+}
+
+/* ============ 백엔드 저장/불러오기 ============ */
+const API_BASE_KEY="turncity_api_base", API_TOKEN_KEY="turncity_api_token";
+function apiBase(){ return (localStorage.getItem(API_BASE_KEY)||"").replace(/\/+$/,""); }
+function apiToken(){ return localStorage.getItem(API_TOKEN_KEY)||""; }
+function serverConfig(){
+  const b=prompt("서버 API 주소를 입력하세요 (예: https://turncity-api.up.railway.app)", apiBase());
+  if(b===null) return;
+  localStorage.setItem(API_BASE_KEY, b.trim().replace(/\/+$/,""));
+  const t=prompt("저장 토큰 (Railway 의 ADMIN_TOKEN 과 동일하게)", apiToken());
+  if(t!==null) localStorage.setItem(API_TOKEN_KEY, t.trim());
+  toast("서버 설정 저장됨");
+}
+async function serverLoad(){
+  if(!apiBase()){ serverConfig(); if(!apiBase()) return; }
+  try{
+    const r=await fetch(apiBase()+"/api/data",{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const d=await r.json();
+    if(!confirm("서버 콘텐츠를 불러옵니다. 현재 편집 중인 내용은 덮어써집니다. 계속할까요?")) return;
+    state={news:d.news||[], guides:d.guides||{groups:[]}};
+    selId=null; persist(); renderAll(); toast("서버에서 불러옴");
+  }catch(e){ alert("불러오기 실패: "+e.message+"\n\n서버 주소와 CORS 설정을 확인하세요."); }
+}
+async function serverSave(){
+  if(!apiBase()||!apiToken()){ serverConfig(); if(!apiBase()||!apiToken()) return; }
+  saveDot.textContent="저장 중...";
+  try{
+    const r=await fetch(apiBase()+"/api/data",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiToken()},
+      body:JSON.stringify({news:state.news,guides:state.guides})
+    });
+    if(r.status===401){ alert("토큰이 올바르지 않습니다. '서버 설정'에서 토큰을 확인하세요."); saveDot.textContent="저장 실패"; return; }
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    saveDot.textContent="서버 저장됨 · "+new Date().toLocaleTimeString();
+    toast("서버에 저장됨 — 사이트에 즉시 반영");
+  }catch(e){ alert("저장 실패: "+e.message+"\n\n서버 주소/CORS/토큰을 확인하세요."); saveDot.textContent="저장 실패"; }
 }
 
 setupDnD();
