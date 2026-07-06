@@ -65,9 +65,12 @@
 
 <footer data-auto></footer>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
+TURN.ready(function(){
+
   const CAT = { patch: "패치노트", notice: "공지사항" };
   const ALL = TURN.news();
 
@@ -114,6 +117,8 @@
   next.addEventListener("click", () => { page++; render(); scrollUp(); });
   function scrollUp() { (window.__lenis ? window.__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: "smooth" })); }
   render();
+
+});
 </script>
 </body>
 </html>
