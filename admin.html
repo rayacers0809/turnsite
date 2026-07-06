@@ -32,6 +32,14 @@
   .entry{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:.15s}
   .entry:hover{border-color:var(--line-2)}
   .entry.sel{border-color:var(--accent);background:rgba(61,139,255,.08)}
+  .entry.drag{display:flex;align-items:center;gap:10px}
+  .entry.drag .grip{flex:0 0 16px;color:var(--muted-2);cursor:grab;display:grid;place-items:center;opacity:.6;transition:.15s}
+  .entry.drag:hover .grip{opacity:1;color:var(--muted)}
+  .entry.drag .grip svg{width:16px;height:16px}
+  .entry.drag .e-main{flex:1;min-width:0}
+  .entry.dragging{opacity:.4;border-color:var(--accent);border-style:dashed}
+  .entry.drop-hint{box-shadow:0 -2px 0 var(--accent)}
+  .col.list.drag-active .glabel{opacity:.4}
   .entry .e-t{font-weight:700;font-size:14px}
   .entry .e-m{margin-top:4px;color:var(--muted-2);font-size:12px;display:flex;gap:8px}
   .glabel{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin:16px 0 6px 2px}
@@ -67,9 +75,42 @@
   @media (max-width:1100px){.admin-body{grid-template-columns:240px 1fr}.col.preview{display:none}}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-weight:700;font-size:14px;padding:12px 22px;border-radius:999px;opacity:0;transition:.3s var(--ease);z-index:100;box-shadow:0 12px 30px rgba(61,139,255,.4)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* login gate */
+  .gate{position:fixed;inset:0;z-index:200;background:#0a0b0d;display:grid;place-items:center}
+  .gate.hide{display:none}
+  .gate-box{width:340px;max-width:90vw;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 28px;text-align:center}
+  .gate-box .mark{width:52px;height:52px;border-radius:13px;background:var(--logo) center/cover no-repeat;margin:0 auto 16px;box-shadow:0 8px 24px rgba(61,139,255,.35)}
+  .gate-box h2{font-size:18px;font-weight:800;margin-bottom:6px}
+  .gate-box p{color:var(--muted-2);font-size:13px;margin-bottom:20px}
+  .gate-box input{width:100%;background:#0e0f12;border:1px solid var(--line);border-radius:10px;color:var(--text);font-family:inherit;font-size:15px;padding:12px 14px;outline:none;text-align:center;margin-bottom:12px}
+  .gate-box input:focus{border-color:var(--accent)}
+  .gate-box button{width:100%;background:var(--accent);color:#fff;border:none;font-family:inherit;font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer;transition:.15s}
+  .gate-box button:hover{filter:brightness(1.08)}
+  .gate-err{color:#f43f5e;font-size:13px;margin-top:10px;min-height:16px}
+  /* import modal */
+  .modal-ov{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;place-items:center;padding:20px}
+  .modal-ov.open{display:grid}
+  .modal{width:680px;max-width:96vw;max-height:90vh;overflow:auto;background:var(--card-2);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .modal h3{font-size:16px;font-weight:800;margin-bottom:4px}
+  .modal .sub{color:var(--muted-2);font-size:12.5px;margin-bottom:16px;line-height:1.6}
+  .modal textarea{width:100%;min-height:240px;background:#0e0f12;border:1px solid var(--line);border-radius:10px;color:var(--text);font-family:ui-monospace,monospace;font-size:13px;padding:12px;outline:none;line-height:1.55;resize:vertical}
+  .modal textarea:focus{border-color:rgba(61,139,255,.5)}
+  .modal-f{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
 </style>
 </head>
 <body>
+
+<!-- 로그인 잠금 -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="mark"></div>
+    <h2>TURN CITY 어드민</h2>
+    <p>비밀번호를 입력하세요</p>
+    <input type="password" id="gatePw" placeholder="비밀번호">
+    <button onclick="tryLogin()">로그인</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
 
 <div class="admin-top">
   <div class="brand"><span class="mark"></span>TURN CITY 어드민</div>
@@ -79,6 +120,8 @@
   </div>
   <span class="save-dot" id="saveDot">저장됨</span>
   <div class="spacer"></div>
+  <button class="abtn" onclick="changePw()">비번변경</button>
+  <button class="abtn" onclick="logout()">로그아웃</button>
   <button class="abtn" onclick="loadOriginal()">원본 불러오기</button>
   <label class="abtn" style="cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg>가져오기<input type="file" accept=".js,.json" style="display:none" onchange="importFile(event)"></label>
   <button class="abtn primary" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>data.js 내보내기</button>
@@ -87,7 +130,8 @@
 <div class="admin-body">
   <!-- 목록 -->
   <div class="col list">
-    <button class="abtn primary" style="width:100%;justify-content:center;margin-bottom:14px" onclick="createEntry()">+ 새로 만들기</button>
+    <button class="abtn primary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="createEntry()">+ 새로 만들기</button>
+    <button class="abtn" style="width:100%;justify-content:center;margin-bottom:14px" onclick="openImport()">↓ Markdown / GitBook 가져오기</button>
     <div class="col-title" id="listTitle">소식 목록</div>
     <div id="entryList"></div>
   </div>
@@ -104,11 +148,69 @@
   </div>
 </div>
 
+<div class="modal-ov" id="mdModal">
+  <div class="modal">
+    <h3>Markdown / GitBook 가져오기</h3>
+    <div class="sub">GitBook에서 복사한 마크다운을 붙여넣으면 블록으로 변환됩니다.<br>지원: 제목 · 문단 · 힌트박스 · 코드 · 표 · 탭 · 토글(expand/details) · 리스트 · 체크리스트 · 인용 · 이미지 · 임베드 · 구분선</div>
+    <div class="row2">
+      <div class="field"><label>제목 (비우면 첫 # 제목 사용)</label><input id="impTitle" placeholder="문서 제목"></div>
+      <div class="field"><label>가져올 위치</label><select id="impTarget"><option value="guide">가이드</option><option value="news">소식</option></select></div>
+    </div>
+    <div class="field"><label>마크다운</label><textarea id="impText" placeholder="# 페이지 제목
+
+{% hint style=&quot;info&quot; %}
+참고 내용
+{% endhint %}
+
+## 소제목
+- 항목 1
+- 항목 2"></textarea></div>
+    <div class="modal-f"><button class="abtn" onclick="closeImport()">취소</button><button class="abtn primary" onclick="doImport()">가져오기</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
+/* ============ 로그인 잠금 (클라이언트 게이트) ============ */
+/* 기본 비밀번호: turncity2026  — 로그인 후 '비번변경'으로 바꾸세요.
+   다른 기기에서도 쓰려면 아래 DEFAULT_HASH 값을 새 해시로 교체 후 재배포하세요. */
+const PW_KEY="turncity_admin_pwhash";
+const DEFAULT_HASH="c0d7ae9ffa67f17fc51ba391d7defdb69b02bd4d28e93236e39371c92ef1959d";
+function sha256(ascii){
+  function rr(n,x){return (x>>>n)|(x<<(32-n));}
+  var p=Math.pow,H=[],K=[],i,primeCounter=0,isC={};
+  for(var cand=2;primeCounter<64;cand++){ if(!isC[cand]){ for(i=0;i<313;i+=cand) isC[i]=cand; H[primeCounter]=(p(cand,.5)*4294967296)|0; K[primeCounter++]=(p(cand,1/3)*4294967296)|0; } }
+  var msg=[]; ascii=unescape(encodeURIComponent(ascii));
+  for(i=0;i<ascii.length;i++) msg.push(ascii.charCodeAt(i));
+  var l=msg.length*8; msg.push(0x80); while(msg.length%64-56) msg.push(0);
+  for(i=0;i<8;i++) msg.push((l/p(2,(7-i)*8))&255);
+  var h=H.slice(0);
+  for(i=0;i<msg.length;i+=64){
+    var w=[],j; for(j=0;j<16;j++) w[j]=(msg[i+j*4]<<24)|(msg[i+j*4+1]<<16)|(msg[i+j*4+2]<<8)|(msg[i+j*4+3]);
+    for(j=16;j<64;j++){ var s0=rr(7,w[j-15])^rr(18,w[j-15])^(w[j-15]>>>3), s1=rr(17,w[j-2])^rr(19,w[j-2])^(w[j-2]>>>10); w[j]=(w[j-16]+s0+w[j-7]+s1)|0; }
+    var a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hv=h[7];
+    for(j=0;j<64;j++){ var S1=rr(6,e)^rr(11,e)^rr(25,e), ch=(e&f)^(~e&g), t1=(hv+S1+ch+K[j]+w[j])|0, S0=rr(2,a)^rr(13,a)^rr(22,a), maj=(a&b)^(a&c)^(b&c), t2=(S0+maj)|0; hv=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0; }
+    h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hv)|0;
+  }
+  var out=''; for(i=0;i<8;i++) out+=('00000000'+(h[i]>>>0).toString(16)).slice(-8); return out;
+}
+function currentHash(){ return localStorage.getItem(PW_KEY)||DEFAULT_HASH; }
+function tryLogin(){ const v=document.getElementById("gatePw").value;
+  if(sha256(v)===currentHash()){ sessionStorage.setItem("turncity_admin_ok","1"); document.getElementById("gate").classList.add("hide"); }
+  else { document.getElementById("gateErr").textContent="비밀번호가 올바르지 않습니다."; document.getElementById("gatePw").value=""; } }
+function logout(){ sessionStorage.removeItem("turncity_admin_ok"); location.reload(); }
+function changePw(){ const a=prompt("새 비밀번호를 입력하세요"); if(a==null||a==="") return;
+  const b=prompt("한 번 더 입력하세요"); if(a!==b){ alert("비밀번호가 일치하지 않습니다."); return; }
+  const hh=sha256(a); localStorage.setItem(PW_KEY,hh);
+  alert("변경되었습니다. (이 브라우저에 적용)\n\n다른 기기/브라우저에서도 쓰려면 admin.html 의 DEFAULT_HASH 값을 아래로 교체 후 재배포하세요:\n\n"+hh); }
+(function gateInit(){
+  if(sessionStorage.getItem("turncity_admin_ok")==="1") document.getElementById("gate").classList.add("hide");
+  document.getElementById("gatePw").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
+})();
+
 /* ============ 상태 ============ */
 const LS = "turncity_admin_draft";
 let state = load();
@@ -161,9 +263,10 @@ function renderList(){
   } else {
     const flat=guideFlat(); let html=""; let lastGrp=null;
     flat.forEach(p=>{ if(p.group!==lastGrp){ html+=`<div class="glabel">${esc(p.group)}</div>`; lastGrp=p.group; }
-      html+=`<div class="entry ${p.id===selId?'sel':''}" onclick="select('${p.id}')">
-        <div class="e-t">${esc(p.title)}</div>
-        <div class="e-m">${p.parent?`<span>${esc(p.parent)}</span>`:'<span>—</span>'}</div></div>`; });
+      html+=`<div class="entry drag ${p.id===selId?'sel':''}" draggable="true" data-id="${esc(p.id)}" onclick="select('${p.id}')">
+        <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>
+        <div class="e-main"><div class="e-t">${esc(p.title)}</div>
+        <div class="e-m">${p.parent?`<span>${esc(p.parent)}</span>`:'<span>—</span>'}</div></div></div>`; });
     el.innerHTML=html || `<div class="hintline">항목이 없습니다.</div>`;
   }
 }
@@ -388,8 +491,115 @@ function importFile(ev){
 
 /* ============ 기타 ============ */
 function esc(s=""){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ============ 가이드 드래그 정렬 ============ */
+let dragId=null;
+function setupDnD(){
+  const c=document.getElementById("entryList");
+  c.addEventListener("dragstart",e=>{
+    const el=e.target.closest(".entry.drag"); if(!el||tab!=="guide"){ e.preventDefault(); return; }
+    dragId=el.dataset.id; el.classList.add("dragging"); c.classList.add("drag-active");
+    e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",dragId);}catch(_){}
+  });
+  c.addEventListener("dragover",e=>{
+    if(!dragId) return; e.preventDefault(); e.dataTransfer.dropEffect="move";
+    const dragging=c.querySelector(".dragging"); if(!dragging) return;
+    const after=getDragAfterElement(c,e.clientY);
+    if(after==null) c.appendChild(dragging); else c.insertBefore(dragging,after);
+  });
+  c.addEventListener("drop",e=>{ if(dragId) e.preventDefault(); });
+  c.addEventListener("dragend",()=>{
+    const el=c.querySelector(".dragging"); if(el) el.classList.remove("dragging");
+    c.classList.remove("drag-active");
+    if(dragId){ commitGuideOrder(); dragId=null; }
+  });
+}
+function getDragAfterElement(c,y){
+  const els=[...c.querySelectorAll(".entry.drag:not(.dragging)")];
+  let closest={offset:-Infinity,el:null};
+  els.forEach(el=>{ const box=el.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+    if(offset<0&&offset>closest.offset) closest={offset,el}; });
+  return closest.el;
+}
+function commitGuideOrder(){
+  const c=document.getElementById("entryList");
+  const order=[...c.querySelectorAll(".entry.drag")].map(el=>el.dataset.id);
+  const snap={}; guideFlat().forEach(p=>snap[p.id]=p);
+  // 드래그된 항목은 새 이웃의 그룹/하위그룹을 따라감
+  const idx=order.indexOf(dragId);
+  const neighborId = order[idx-1] ?? order[idx+1];
+  if(neighborId && snap[dragId] && snap[neighborId]){
+    snap[dragId].group  = snap[neighborId].group;
+    snap[dragId].parent = snap[neighborId].parent;
+  }
+  const newFlat=order.map(id=>snap[id]).filter(Boolean);
+  state.guides=rebuildGuides(newFlat);
+  persist(); renderList(); toast("순서 변경됨 · 내보내기 후 반영");
+}
+
 let toastTimer; function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2200); }
 
+/* ============ Markdown / GitBook 임포터 ============ */
+function mdToBlocks(md){
+  const lines=(md||"").replace(/\r\n/g,"\n").split("\n");
+  const blocks=[]; let i=0; const buf=[];
+  const flush=()=>{ const t=buf.join("\n").trim(); if(t) blocks.push({type:"paragraph",text:t}); buf.length=0; };
+  const until=(re)=>{ const o=[]; i++; while(i<lines.length && !re.test(lines[i])){ o.push(lines[i]); i++; } i++; return o; };
+  while(i<lines.length){
+    const line=lines[i], t=line.trim(); let m;
+    if(/^```/.test(t)){ flush(); const lang=t.replace(/^```/,"").trim(); const code=until(/^```/); blocks.push({type:"code",lang,title:lang||"code",code:code.join("\n")}); continue; }
+    if(m=t.match(/^\{%\s*hint\s+style=["']?(\w+)["']?\s*%\}/)){ flush(); const st=["info","success","warning","danger"].includes(m[1])?m[1]:"info"; const b=until(/\{%\s*endhint\s*%\}/); blocks.push({type:"hint",style:st,text:b.join("\n").trim()}); continue; }
+    if(/^\{%\s*tabs\s*%\}/.test(t)){ flush(); const tabs=[]; i++;
+      while(i<lines.length && !/\{%\s*endtabs\s*%\}/.test(lines[i])){ const tm=lines[i].trim().match(/^\{%\s*tab\s+title=["']?(.+?)["']?\s*%\}/);
+        if(tm){ const cb=[]; i++; while(i<lines.length && !/\{%\s*endtab\s*%\}/.test(lines[i]) && !/\{%\s*endtabs\s*%\}/.test(lines[i])){ cb.push(lines[i]); i++; } if(/\{%\s*endtab\s*%\}/.test(lines[i]||"")) i++; tabs.push({label:tm[1],content:cb.join("\n").trim()}); }
+        else i++; } i++; if(tabs.length) blocks.push({type:"tabs",tabs}); continue; }
+    if(m=t.match(/^\{%\s*(?:expand|details)\s+title=["']?(.+?)["']?\s*%\}/)){ flush(); const b=until(/\{%\s*end(?:expand|details)\s*%\}/); blocks.push({type:"expandable",title:m[1],content:b.join("\n").trim()}); continue; }
+    if(/^<details>/i.test(t)){ flush(); const inner=[]; i++; while(i<lines.length && !/<\/details>/i.test(lines[i])){ inner.push(lines[i]); i++; } i++;
+      const j=inner.join("\n"); const sm=j.match(/<summary>([\s\S]*?)<\/summary>/i); const title=sm?sm[1].trim():"자세히"; const content=j.replace(/<summary>[\s\S]*?<\/summary>/i,"").trim(); blocks.push({type:"expandable",title,content}); continue; }
+    if(m=t.match(/^\{%\s*embed\s+url=["']?(.+?)["']?\s*%\}/)){ flush(); blocks.push({type:"embed",url:m[1]}); i++; continue; }
+    if(m=t.match(/^(#{1,6})\s+(.*)$/)){ flush(); blocks.push({type:"heading",level:m[1].length<=2?2:3,text:m[2].trim()}); i++; continue; }
+    if(/^(-{3,}|\*{3,}|_{3,})$/.test(t)){ flush(); blocks.push({type:"divider"}); i++; continue; }
+    if(/^>\s?/.test(t)){ flush(); const b=[]; while(i<lines.length && /^\s*>\s?/.test(lines[i])){ b.push(lines[i].replace(/^\s*>\s?/,"")); i++; } blocks.push({type:"quote",text:b.join(" ").trim()}); continue; }
+    if(/^\|.*\|/.test(t) && i+1<lines.length && /-/.test(lines[i+1]) && /^\|?[\s:|-]+\|?$/.test(lines[i+1].trim())){
+      flush(); const row=(s)=>s.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(x=>x.trim());
+      const headers=row(lines[i]); i+=2; const rows=[]; while(i<lines.length && /^\|.*\|/.test(lines[i].trim())){ rows.push(row(lines[i])); i++; } blocks.push({type:"table",headers,rows}); continue; }
+    if(/^[-*]\s+\[[ xX]\]/.test(t)){ flush(); const items=[]; while(i<lines.length && /^\s*[-*]\s+\[[ xX]\]/.test(lines[i])){ const lm=lines[i].trim().match(/^[-*]\s+\[([ xX])\]\s*(.*)$/); items.push({text:lm[2],done:/x/i.test(lm[1])}); i++; } blocks.push({type:"list",style:"task",items}); continue; }
+    if(/^[-*+]\s+/.test(t)){ flush(); const items=[]; while(i<lines.length && /^\s*[-*+]\s+/.test(lines[i]) && !/^\s*[-*]\s+\[[ xX]\]/.test(lines[i])){ items.push(lines[i].trim().replace(/^[-*+]\s+/,"")); i++; } blocks.push({type:"list",style:"unordered",items}); continue; }
+    if(/^\d+\.\s+/.test(t)){ flush(); const items=[]; while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){ items.push(lines[i].trim().replace(/^\d+\.\s+/,"")); i++; } blocks.push({type:"list",style:"ordered",items}); continue; }
+    if(m=t.match(/^!\[(.*?)\]\((.*?)\)/)){ flush(); blocks.push({type:"image",src:m[2],caption:m[1]}); i++; continue; }
+    if(t===""){ flush(); i++; continue; }
+    if(/^\{%[\s\S]*%\}$/.test(t)){ i++; continue; }   // 기타 GitBook 태그 무시
+    buf.push(line); i++;
+  }
+  flush(); return blocks;
+}
+function openImport(){ document.getElementById("impTarget").value=tab; document.getElementById("mdModal").classList.add("open"); }
+function closeImport(){ document.getElementById("mdModal").classList.remove("open"); }
+document.getElementById("mdModal").addEventListener("click",e=>{ if(e.target.id==="mdModal") closeImport(); });
+function doImport(){
+  const md=document.getElementById("impText").value;
+  if(!md.trim()){ alert("마크다운을 붙여넣으세요."); return; }
+  let title=document.getElementById("impTitle").value.trim();
+  const target=document.getElementById("impTarget").value;
+  let text=md; const h1=text.match(/^\s*#\s+(.+)$/m);
+  if(!title && h1) title=h1[1].trim();
+  if(h1) text=text.replace(h1[0],"");     // 제목 라인 제거(본문 중복 방지)
+  const blocks=mdToBlocks(text);
+  if(!blocks.length){ alert("변환할 내용이 없습니다."); return; }
+  if(!title) title="가져온 문서";
+  const rid=Date.now().toString(36);
+  if(target==="news"){ const today=new Date().toISOString().slice(0,10);
+    const n={id:"post-"+rid,category:"patch",title,date:today,summary:"",blocks}; state.news.unshift(n);
+    tab="news"; selId=n.id; tabNews.classList.add("on"); tabGuide.classList.remove("on"); }
+  else{ const flat=guideFlat(); flat.push({id:"page-"+rid,title,group:"가이드",parent:null,updated:"",blocks});
+    state.guides=rebuildGuides(flat); tab="guide"; selId="page-"+rid; tabGuide.classList.add("on"); tabNews.classList.remove("on"); }
+  listTitle.textContent = tab==="news"?"소식 목록":"가이드 목록";
+  persist(); closeImport();
+  document.getElementById("impText").value=""; document.getElementById("impTitle").value="";
+  renderAll(); toast(blocks.length+"개 블록 가져옴");
+}
+
+setupDnD();
 renderAll();
 </script>
 </body>
