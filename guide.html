@@ -40,9 +40,12 @@
 
 <footer data-auto></footer>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
+TURN.ready(function(){
+
   const groups = (window.TURN_DATA.guides.groups) || [];
   const flat = TURN.guideFlat();
   const params = new URLSearchParams(location.search);
@@ -101,6 +104,8 @@
     TURN.bindBlocks(content);
     TURN.buildTOC(content, document.getElementById("toc"));
   }
+
+});
 </script>
 </body>
 </html>
