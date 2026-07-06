@@ -7,6 +7,63 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* ===== 가이드 전용 레이아웃 (돌핀식 좌측트리 X) ===== */
+  .g-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+    background:radial-gradient(120% 140% at 85% -20%,rgba(61,139,255,.16),transparent 55%),linear-gradient(180deg,#0e1017,var(--bg))}
+  .g-hero-in{max-width:1100px;margin:0 auto;padding:44px 24px 30px}
+  .g-crumbs{display:flex;align-items:center;gap:8px;color:var(--muted-2);font-size:13px;margin-bottom:14px;flex-wrap:wrap}
+  .g-crumbs .sep{opacity:.4}.g-crumbs .cur{color:var(--accent-2)}
+  .g-hero h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.03em}
+  .g-hero .g-sub{margin-top:12px;color:var(--muted);font-size:15px;max-width:640px}
+
+  /* 챕터 네비 (상단 가로 스크롤) */
+  .chapters{position:sticky;top:72px;z-index:30;background:rgba(10,10,11,.82);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .chapters-in{max-width:1100px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:18px;overflow-x:auto;scrollbar-width:none}
+  .chapters-in::-webkit-scrollbar{display:none}
+  .chapter{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .chapter .clabel{color:var(--muted-2);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  .chapter .cdiv{width:1px;height:20px;background:var(--line);flex:0 0 auto}
+  .chip{flex:0 0 auto;white-space:nowrap;padding:7px 15px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--muted);
+    border:1px solid transparent;transition:.16s var(--ease)}
+  .chip:hover{color:#fff;background:rgba(255,255,255,.05)}
+  .chip.on{color:#fff;background:rgba(61,139,255,.16);border-color:rgba(61,139,255,.35)}
+
+  /* 본문 */
+  .g-body{max-width:820px;margin:0 auto;padding:38px 24px 90px}
+  .g-toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 30px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+  .g-toc .tt{width:100%;color:var(--muted-2);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+  .g-toc a{padding:6px 12px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);font-size:13px;transition:.15s}
+  .g-toc a:hover,.g-toc a.active{color:#fff;border-color:rgba(61,139,255,.4)}
+
+  /* ===== 등급표 재해석: 2열 그리드 + 색 레일 + 혜택 칩 ===== */
+  .tier-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:0 0 16px}
+  .g-body .tier{display:block;position:relative;grid-template-columns:none;
+    border:1px solid var(--line);border-left:3px solid var(--tc,#3d8bff);border-radius:16px;
+    padding:20px 22px;margin:0;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);
+    box-shadow:-26px 0 46px -34px var(--tc,#3d8bff);transition:transform .22s var(--ease),box-shadow .22s}
+  .g-body .tier:hover{transform:translateY(-3px);box-shadow:-26px 0 46px -30px var(--tc,#3d8bff),0 20px 40px rgba(0,0,0,.4)}
+  .g-body .tier .tier-head{display:flex;align-items:baseline;gap:12px;margin-bottom:15px}
+  .g-body .tier .tier-name{font-size:20px;font-weight:900;letter-spacing:.02em}
+  .g-body .tier .tier-sub{margin-top:0;font-size:13px;font-weight:700;color:var(--muted-2)}
+  .g-body .tier ul{display:flex;flex-wrap:wrap;gap:7px;padding:0;margin:0}
+  .g-body .tier li{position:relative;padding:6px 12px;margin:0;border-radius:999px;font-size:12.5px;
+    color:#d3d7dd;background:rgba(255,255,255,.045);border:1px solid var(--line)}
+  .g-body .tier li::before{display:none}
+
+  .g-nav{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .g-nav a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;transition:.2s var(--ease)}
+  .g-nav a:hover{border-color:rgba(61,139,255,.4);transform:translateY(-2px)}
+  .g-nav a.next{text-align:right}
+  .g-nav .lbl{color:var(--muted-2);font-size:12.5px;display:flex;align-items:center;gap:5px}
+  .g-nav a.next .lbl{justify-content:flex-end}.g-nav .lbl svg{width:13px;height:13px}
+  .g-nav .t{margin-top:5px;font-weight:800;font-size:15px}
+  .g-updated{margin-top:26px;color:var(--muted-2);font-size:12.5px}
+
+  @media (max-width:720px){.tier-wrap{grid-template-columns:1fr}.g-nav{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 
@@ -14,29 +71,27 @@
   <div class="wrap nav">
     <a class="logo" href="index.html"><span class="mark"></span><span class="name">TURN CITY</span></a>
     <nav class="nav-center">
-      <a href="news.html">패치노트</a>
+      <a href="news.html">소식</a>
       <a href="guide.html" class="active">가이드</a>
-      <a href="#">디스코드</a>
+      <a href="https://discord.gg/2026turn" target="_blank" rel="noopener">디스코드</a>
     </nav>
-    <div class="nav-right"><a class="login" href="#">로그인</a><a class="btn-start" href="#">GAME START</a></div>
+    <div class="nav-right"><a class="btn-start" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">GAME START</a></div>
   </div>
 </header>
 
 <div class="page-top"></div>
 
-<div class="wrap doc">
-  <aside class="side">
-    <div class="side-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="sideSearch" type="text" placeholder="검색..."><span class="kbd">Ctrl K</span>
-    </div>
-    <ul class="tree" id="tree"></ul>
-  </aside>
+<section class="g-hero">
+  <div class="g-hero-in">
+    <div class="g-crumbs" id="crumbs"></div>
+    <h1 id="gTitle"></h1>
+    <p class="g-sub" id="gSub"></p>
+  </div>
+</section>
 
-  <main class="content page-fade" id="content"></main>
+<nav class="chapters"><div class="chapters-in" id="chapters"></div></nav>
 
-  <nav class="toc" id="toc"></nav>
-</div>
+<main class="g-body page-fade" id="body"></main>
 
 <footer data-auto></footer>
 
@@ -45,66 +100,69 @@
 <script src="app.js"></script>
 <script>
 TURN.ready(function(){
-
   const groups = (window.TURN_DATA.guides.groups) || [];
   const flat = TURN.guideFlat();
-  const params = new URLSearchParams(location.search);
-  const pageId = params.get("page") || (flat[0] && flat[0].id);
+  const pageId = new URLSearchParams(location.search).get("page") || (flat[0] && flat[0].id);
   const current = TURN.guideById(pageId) || flat[0];
 
-  // ---- 사이드바 트리 ----
-  const tree = document.getElementById("tree");
-  const caret = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6-6 6"/></svg>';
-  tree.innerHTML = groups.map(g => `
-    <li>
-      <div class="grp">${g.title}</div>
-      <ul style="list-style:none">
-        ${g.items.map(it => it.items ? `
-          <li>
-            <div class="node ${it.items.some(c=>c.id===pageId)?'':'collapsed'}">${caret}${it.title}</div>
-            <ul class="children">
-              ${it.items.map(c => `<li><a href="guide.html?page=${c.id}"><div class="node ${c.id===pageId?'active':''}" style="padding-left:22px">${c.title}</div></a></li>`).join("")}
-            </ul>
-          </li>` : `
-          <li><a href="guide.html?page=${it.id}"><div class="node ${it.id===pageId?'active':''}">${it.title}</div></a></li>`
-        ).join("")}
-      </ul>
-    </li>`).join("");
-  // 접기 토글 (부모 노드만)
-  tree.querySelectorAll(".node").forEach(n => {
-    if (n.querySelector(".caret")) n.addEventListener("click", () => n.classList.toggle("collapsed"));
-  });
-  // 사이드 검색
-  document.getElementById("sideSearch").addEventListener("input", e => {
-    const q = e.target.value.trim().toLowerCase();
-    tree.querySelectorAll(".children li, .grp + ul > li").forEach(li => {
-      const t = li.textContent.toLowerCase();
-      li.style.display = (!q || t.includes(q)) ? "" : "none";
-    });
-  });
+  // ----- 상단 챕터 네비 -----
+  const chapters = document.getElementById("chapters");
+  chapters.innerHTML = groups.map(g => {
+    const pages = [];
+    (g.items || []).forEach(it => it.items ? it.items.forEach(c => pages.push(c)) : pages.push(it));
+    return `<div class="chapter">
+      <span class="clabel">${g.title}</span>
+      <span class="cdiv"></span>
+      ${pages.map(p => `<a class="chip ${p.id===pageId?'on':''}" href="guide.html?page=${p.id}">${p.title}</a>`).join("")}
+    </div>`;
+  }).join("");
+  // 활성 챕터로 스크롤
+  const onChip = chapters.querySelector(".chip.on");
+  if (onChip) onChip.scrollIntoView({ inline: "center", block: "nearest" });
 
-  // ---- 본문 ----
-  const content = document.getElementById("content");
-  if (!current) {
-    content.innerHTML = "<h1>가이드가 없습니다.</h1>";
-  } else {
-    const idx = flat.findIndex(p => p.id === current.id);
-    const prev = flat[idx - 1], next = flat[idx + 1];
-    const crumbParts = [current.group, current.parent, current.title].filter(Boolean);
-    content.innerHTML = `
-      <div class="crumbs">${crumbParts.map((c, i) => `<span class="${i === crumbParts.length - 1 ? 'cur' : ''}">${c}</span>${i < crumbParts.length - 1 ? '<span class="sep">/</span>' : ''}`).join("")}</div>
-      <h1>${current.title}</h1>
-      ${TURN.renderBlocks(current.blocks)}
-      <nav class="page-nav">
-        ${prev ? `<a href="guide.html?page=${prev.id}"><div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 페이지</div><div class="t">${prev.title}</div></a>` : "<span></span>"}
-        ${next ? `<a class="next" href="guide.html?page=${next.id}"><div class="lbl">다음 페이지 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div><div class="t">${next.title}</div></a>` : "<span></span>"}
-      </nav>
-      ${current.updated ? `<div class="updated">마지막 업데이트: ${current.updated}</div>` : ""}`;
-    document.title = current.title + " · TURN CITY";
-    TURN.bindBlocks(content);
-    TURN.buildTOC(content, document.getElementById("toc"));
+  const body = document.getElementById("body");
+  if (!current) { document.getElementById("gTitle").textContent = "가이드가 없습니다."; return; }
+
+  // ----- 히어로 -----
+  const parts = [current.group, current.parent, current.title].filter(Boolean);
+  document.getElementById("crumbs").innerHTML = parts.map((c, i) =>
+    `<span class="${i===parts.length-1?'cur':''}">${c}</span>${i<parts.length-1?'<span class="sep">/</span>':''}`).join("");
+  document.getElementById("gTitle").textContent = current.title;
+  const intro = (current.blocks || []).find(b => b.type === "paragraph");
+  document.getElementById("gSub").textContent = intro ? intro.text.replace(/[*`\[\]()]/g,"") : "";
+  document.title = current.title + " · TURN CITY";
+
+  // ----- 본문 블록 -----
+  const idx = flat.findIndex(p => p.id === current.id);
+  const prev = flat[idx-1], next = flat[idx+1];
+  body.innerHTML = `<div class="g-toc" id="toc"></div>` + TURN.renderBlocks(current.blocks) + `
+    <nav class="g-nav">
+      ${prev ? `<a href="guide.html?page=${prev.id}"><div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전</div><div class="t">${prev.title}</div></a>` : "<span></span>"}
+      ${next ? `<a class="next" href="guide.html?page=${next.id}"><div class="lbl">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div><div class="t">${next.title}</div></a>` : "<span></span>"}
+    </nav>
+    ${current.updated ? `<div class="g-updated">마지막 업데이트: ${current.updated}</div>` : ""}`;
+
+  TURN.bindBlocks(body);
+
+  // ----- 등급표: 연속 .tier 를 2열 그리드로 묶고 색상 레일 주입 -----
+  const blocksEl = body.querySelector(".blocks");
+  if (blocksEl) {
+    let run = [];
+    const flush = () => { if (run.length) { const w = document.createElement("div"); w.className = "tier-wrap"; run[0].before(w); run.forEach(x => w.appendChild(x)); } run = []; };
+    [...blocksEl.children].forEach(ch => { if (ch.classList.contains("tier")) run.push(ch); else flush(); });
+    flush();
+    body.querySelectorAll(".tier").forEach(t => { const n = t.querySelector(".tier-name"); if (n && n.style.color) t.style.setProperty("--tc", n.style.color); });
   }
 
+  // ----- 상단 목차(칩) -----
+  const toc = document.getElementById("toc");
+  const hs = body.querySelectorAll(".blocks h2[data-toc], .blocks h3[data-toc]");
+  if (hs.length) {
+    toc.innerHTML = `<span class="tt">이 페이지</span>` + [...hs].map(h => `<a href="#${h.id}">${h.dataset.title}</a>`).join("");
+    const links = toc.querySelectorAll("a");
+    const spy = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-100px 0px -70% 0px" });
+    hs.forEach(h => spy.observe(h));
+  } else { toc.style.display = "none"; }
 });
 </script>
 </body>
