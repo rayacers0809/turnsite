@@ -6,16 +6,16 @@
   const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------- 데이터 접근 ---------------- */
-  const DB = window.TURN_DATA || { news: [], guides: { groups: [] } };
+  const DB = () => window.TURN_DATA || { news: [], guides: { groups: [] } };
   const T = window.TURN = {};
 
-  T.news = () => (DB.news || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
-  T.newsById = (id) => (DB.news || []).find((n) => n.id === id);
+  T.news = () => (DB().news || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+  T.newsById = (id) => (DB().news || []).find((n) => n.id === id);
 
   // 가이드 leaf 페이지 평탄화 (이전/다음 계산용)
   T.guideFlat = () => {
     const out = [];
-    (DB.guides.groups || []).forEach((g) =>
+    (((DB().guides) || {}).groups || []).forEach((g) =>
       (g.items || []).forEach((it) => {
         if (it.items) it.items.forEach((c) => out.push({ ...c, group: g.title, parent: it.title }));
         else out.push({ ...it, group: g.title, parent: null });
@@ -218,8 +218,29 @@
     if (f) f.innerHTML = FOOTER;
   }
 
+  /* ---------------- 백엔드 연동 (선택) ---------------- */
+  // config.js 에서 window.TURN_API_BASE 를 설정하면 서버에서 콘텐츠를 읽어옵니다.
+  T.apiBase = function () {
+    return (window.TURN_API_BASE || (window.localStorage && localStorage.getItem('turncity_api_base')) || '').replace(/\/+$/, '');
+  };
+  let dataReady = false; const readyQ = [];
+  T.ready = function (fn) { if (dataReady) fn(); else readyQ.push(fn); };
+  function flushReady() { dataReady = true; readyQ.splice(0).forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); }
+  function bootData(done) {
+    const base = T.apiBase();
+    if (!base) { done(); return; }
+    fetch(base + '/api/data', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (d && (d.news || d.guides)) window.TURN_DATA = { news: d.news || [], guides: d.guides || { groups: [] } }; })
+      .catch(() => { /* 실패 시 로컬 data.js 유지 */ })
+      .finally(done);
+  }
+
   /* ---------------- init ---------------- */
-  function init() { initHeader(); initFooter(); initReveal(); initLenis(); }
+  function init() {
+    initHeader(); initFooter();
+    bootData(function () { flushReady(); initReveal(); initLenis(); });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
