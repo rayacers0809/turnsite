@@ -39,7 +39,13 @@
   .entry.drag .e-main{flex:1;min-width:0}
   .entry.dragging{opacity:.4;border-color:var(--accent);border-style:dashed}
   .entry.drop-hint{box-shadow:0 -2px 0 var(--accent)}
-  .col.list.drag-active .glabel{opacity:.4}
+  .glabel.drag-grp{display:flex;align-items:center;gap:6px;cursor:grab;border-radius:6px;padding:4px 2px}
+  .glabel.drag-grp .grip-sm{color:var(--muted-2);opacity:.5;display:grid;place-items:center}
+  .glabel.drag-grp .grip-sm svg{width:13px;height:13px}
+  .glabel.drag-grp:hover{opacity:1;background:rgba(255,255,255,.03)}
+  .glabel.drag-grp:hover .grip-sm{opacity:1}
+  .glabel.dragging{opacity:.4;background:rgba(61,139,255,.1)}
+  .col.list.drag-page .glabel{opacity:.4}
   .entry .e-t{font-weight:700;font-size:14px}
   .entry .e-m{margin-top:4px;color:var(--muted-2);font-size:12px;display:flex;gap:8px}
   .glabel{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin:16px 0 6px 2px}
@@ -265,7 +271,7 @@ function renderList(){
     </div>`).join("") || `<div class="hintline">항목이 없습니다.</div>`;
   } else {
     const flat=guideFlat(); let html=""; let lastGrp=null;
-    flat.forEach(p=>{ if(p.group!==lastGrp){ html+=`<div class="glabel">${esc(p.group)}</div>`; lastGrp=p.group; }
+    flat.forEach(p=>{ if(p.group!==lastGrp){ html+=`<div class="glabel drag-grp" draggable="true" data-group="${esc(p.group)}"><span class="grip grip-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>${esc(p.group)}</div>`; lastGrp=p.group; }
       html+=`<div class="entry drag ${p.id===selId?'sel':''}" draggable="true" data-id="${esc(p.id)}" onclick="select('${p.id}')">
         <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>
         <div class="e-main"><div class="e-t">${esc(p.title)}</div>
@@ -497,25 +503,54 @@ function esc(s=""){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").r
 
 /* ============ 가이드 드래그 정렬 ============ */
 let dragId=null;
+let dragGroup=null;
 function setupDnD(){
   const c=document.getElementById("entryList");
   c.addEventListener("dragstart",e=>{
-    const el=e.target.closest(".entry.drag"); if(!el||tab!=="guide"){ e.preventDefault(); return; }
-    dragId=el.dataset.id; el.classList.add("dragging"); c.classList.add("drag-active");
+    if(tab!=="guide"){ e.preventDefault(); return; }
+    const gl=e.target.closest(".glabel.drag-grp");
+    if(gl){ dragGroup=gl.dataset.group; gl.classList.add("dragging"); c.classList.add("drag-group");
+      e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",dragGroup);}catch(_){}
+      return; }
+    const el=e.target.closest(".entry.drag"); if(!el){ e.preventDefault(); return; }
+    dragId=el.dataset.id; el.classList.add("dragging"); c.classList.add("drag-page");
     e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",dragId);}catch(_){}
   });
   c.addEventListener("dragover",e=>{
+    if(dragGroup){ e.preventDefault(); e.dataTransfer.dropEffect="move";
+      const dragging=c.querySelector(".glabel.dragging"); if(!dragging) return;
+      const after=getDragAfterGroup(c,e.clientY);
+      if(after==null) c.appendChild(dragging); else c.insertBefore(dragging,after);
+      return; }
     if(!dragId) return; e.preventDefault(); e.dataTransfer.dropEffect="move";
-    const dragging=c.querySelector(".dragging"); if(!dragging) return;
+    const dragging=c.querySelector(".entry.dragging"); if(!dragging) return;
     const after=getDragAfterElement(c,e.clientY);
     if(after==null) c.appendChild(dragging); else c.insertBefore(dragging,after);
   });
-  c.addEventListener("drop",e=>{ if(dragId) e.preventDefault(); });
+  c.addEventListener("drop",e=>{ if(dragId||dragGroup) e.preventDefault(); });
   c.addEventListener("dragend",()=>{
-    const el=c.querySelector(".dragging"); if(el) el.classList.remove("dragging");
-    c.classList.remove("drag-active");
-    if(dragId){ commitGuideOrder(); dragId=null; }
+    c.querySelectorAll(".dragging").forEach(x=>x.classList.remove("dragging"));
+    c.classList.remove("drag-page","drag-group");
+    if(dragGroup){ commitGroupOrder(); dragGroup=null; }
+    else if(dragId){ commitGuideOrder(); dragId=null; }
   });
+}
+function getDragAfterGroup(c,y){
+  const els=[...c.querySelectorAll(".glabel.drag-grp:not(.dragging)")];
+  let closest={offset:-Infinity,el:null};
+  els.forEach(el=>{ const box=el.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+    if(offset<0&&offset>closest.offset) closest={offset,el}; });
+  return closest.el;
+}
+function commitGroupOrder(){
+  const c=document.getElementById("entryList");
+  const order=[...c.querySelectorAll(".glabel.drag-grp")].map(g=>g.dataset.group);
+  const map={}; (state.guides.groups||[]).forEach(g=>map[g.title]=g);
+  const seen={}; const newGroups=[];
+  order.forEach(t=>{ if(map[t]&&!seen[t]){ newGroups.push(map[t]); seen[t]=1; } });
+  (state.guides.groups||[]).forEach(g=>{ if(!seen[g.title]){ newGroups.push(g); seen[g.title]=1; } });
+  state.guides={groups:newGroups};
+  persist(); renderList(); toast("그룹 순서 변경됨");
 }
 function getDragAfterElement(c,y){
   const els=[...c.querySelectorAll(".entry.drag:not(.dragging)")];
