@@ -28,9 +28,12 @@
 
 <footer data-auto></footer>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
+TURN.ready(function(){
+
   const CAT = { patch: "패치노트", notice: "공지사항" };
   const id = new URLSearchParams(location.search).get("id");
   const posts = TURN.news();
@@ -56,6 +59,8 @@
     document.title = post.title + " · TURN CITY";
     TURN.bindBlocks(art);
   }
+
+});
 </script>
 </body>
 </html>
