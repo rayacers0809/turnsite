@@ -229,9 +229,19 @@
   function bootData(done) {
     const base = T.apiBase();
     if (!base) { done(); return; }
+    const local = window.TURN_DATA;
     fetch(base + '/api/data', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { if (d && (d.news || d.guides)) window.TURN_DATA = { news: d.news || [], guides: d.guides || { groups: [] } }; })
+      .then((d) => {
+        const news = (d && d.news) || [];
+        const groups = (d && d.guides && d.guides.groups) || [];
+        // 서버가 완전히 비어 있으면 로컬 data.js 유지 (빈 화면 방지)
+        if (!news.length && !groups.length) return;
+        window.TURN_DATA = {
+          news: news.length ? news : ((local && local.news) || []),
+          guides: groups.length ? { groups } : ((local && local.guides) || { groups: [] })
+        };
+      })
       .catch(() => { /* 실패 시 로컬 data.js 유지 */ })
       .finally(done);
   }
