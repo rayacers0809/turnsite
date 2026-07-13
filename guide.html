@@ -4,21 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>가이드 · TURN CITY</title>
+<meta name="description" content="턴시티 규칙과 시스템 가이드.">
+<meta name="theme-color" content="#3B6FF5">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TURN CITY">
 <meta property="og:title" content="가이드 · TURN CITY">
-<meta property="og:description" content="턴 가이드 및 법률 사이트">
+<meta property="og:description" content="턴시티 규칙과 시스템 가이드.">
 <meta property="og:image" content="https://turn2026.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://turn2026.com/guide.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="가이드 · TURN CITY">
-<meta name="twitter:description" content="턴 가이드 및 법률 사이트">
-<meta name="twitter:image" content="https://turn2026.com/og-image.jpg">
-<meta name="theme-color" content="#3d8bff">
-<meta name="description" content="턴 가이드 및 법률 사이트">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -28,32 +26,38 @@
 </head>
 <body>
 
-<header class="solid">
-  <div class="wrap nav">
-    <a class="logo" href="index.html"><span class="mark"></span><span class="name">TURN CITY</span></a>
-    <nav class="nav-center">
+<header class="tc-top">
+  <div class="wrap tc-top-in">
+    <a class="tc-brand" href="index.html">
+      <span class="mk"></span>
+      <span class="wm">TURN <i>CITY</i></span>
+    </a>
+    <nav class="tc-menu" id="menu">
       <a href="news.html">소식</a>
-      <a href="guide.html" class="active">가이드</a>
+      <a href="guide.html" class="on">가이드</a>
       <a href="https://discord.gg/2026turn" target="_blank" rel="noopener">디스코드</a>
     </nav>
-    <div class="nav-right"><a class="btn-start" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">GAME START</a></div>
+    <div class="tc-top-r">
+      <span class="tc-status"><span class="lamp"></span>SERVER ONLINE</span>
+      <button class="tc-burger" id="burger" aria-label="메뉴">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <a class="tc-enter" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">GAME START</a>
+    </div>
   </div>
 </header>
 
-<div class="page-top"></div>
-
-<div class="wrap doc">
-  <aside class="side">
-    <div class="side-search">
+<div class="wrap tc-doc">
+  <aside class="tc-side">
+    <label class="tc-find">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="sideSearch" type="text" placeholder="가이드 검색"><span class="kbd">Ctrl K</span>
-    </div>
-    <ul class="tree" id="tree"></ul>
+      <input id="find" type="text" placeholder="가이드 검색">
+      <span class="k">Ctrl K</span>
+    </label>
+    <ul class="tc-tree" id="tree"></ul>
   </aside>
 
   <main class="content page-fade" id="content"></main>
-
-  <nav class="toc" id="toc"></nav>
 </div>
 
 <footer data-auto></footer>
@@ -63,64 +67,83 @@
 <script src="app.js"></script>
 <script>
 TURN.ready(function(){
+
+  document.getElementById("burger").addEventListener("click", () => {
+    document.getElementById("menu").classList.toggle("open");
+  });
+
   const groups = (window.TURN_DATA.guides.groups) || [];
   const flat = TURN.guideFlat();
-  const params = new URLSearchParams(location.search);
-  const pageId = params.get("page") || (flat[0] && flat[0].id);
+  const pageId = new URLSearchParams(location.search).get("page") || (flat[0] && flat[0].id);
   const current = TURN.guideById(pageId) || flat[0];
 
-  // ---- 사이드바 트리 ----
+  // ---- 사이드 트리 ----
   const tree = document.getElementById("tree");
-  const caret = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6-6 6"/></svg>';
+  const cr = '<svg class="tc-cr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6-6 6"/></svg>';
   tree.innerHTML = groups.map(g => `
     <li>
-      <div class="grp">${g.title}</div>
-      <ul style="list-style:none">
+      <div class="g">${g.title}</div>
+      <ul>
         ${g.items.map(it => it.items ? `
           <li>
-            <div class="node ${it.items.some(c=>c.id===pageId)?'':'collapsed'}">${caret}${it.title}</div>
-            <ul class="children">
-              ${it.items.map(c => `<li><a href="guide.html?page=${c.id}"><div class="node ${c.id===pageId?'active':''}" style="padding-left:22px">${c.title}</div></a></li>`).join("")}
+            <div class="tc-nd ${it.items.some(c => c.id === pageId) ? '' : 'cl'}">${cr}${it.title}</div>
+            <ul class="tc-kids">
+              ${it.items.map(c => `<li><a href="guide.html?page=${c.id}"><div class="tc-nd ${c.id === pageId ? 'on' : ''}">${c.title}</div></a></li>`).join("")}
             </ul>
           </li>` : `
-          <li><a href="guide.html?page=${it.id}"><div class="node ${it.id===pageId?'active':''}">${it.title}</div></a></li>`
+          <li><a href="guide.html?page=${it.id}"><div class="tc-nd ${it.id === pageId ? 'on' : ''}">${it.title}</div></a></li>`
         ).join("")}
       </ul>
     </li>`).join("");
-  tree.querySelectorAll(".node").forEach(n => {
-    if (n.querySelector(".caret")) n.addEventListener("click", () => n.classList.toggle("collapsed"));
+
+  tree.querySelectorAll(".tc-nd").forEach(n => {
+    if (n.querySelector(".tc-cr")) n.addEventListener("click", () => n.classList.toggle("cl"));
   });
-  const sideSearch = document.getElementById("sideSearch");
-  sideSearch.addEventListener("input", e => {
+
+  const find = document.getElementById("find");
+  find.addEventListener("input", e => {
     const q = e.target.value.trim().toLowerCase();
-    tree.querySelectorAll(".children li, .grp + ul > li").forEach(li => {
-      const t = li.textContent.toLowerCase();
-      li.style.display = (!q || t.includes(q)) ? "" : "none";
+    tree.querySelectorAll("li").forEach(li => {
+      if (li.querySelector(".g")) return;
+      li.style.display = (!q || li.textContent.toLowerCase().includes(q)) ? "" : "none";
     });
   });
   document.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); sideSearch.focus(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); find.focus(); }
   });
 
   // ---- 본문 ----
   const content = document.getElementById("content");
-  if (!current) { content.innerHTML = "<h1>가이드가 없습니다.</h1>"; return; }
+  if (!current) {
+    content.innerHTML = `<h1>아직 가이드가 없습니다.</h1><p class="tc-lead">문서가 올라오면 여기에 표시됩니다.</p>`;
+    return;
+  }
 
   const idx = flat.findIndex(p => p.id === current.id);
   const prev = flat[idx - 1], next = flat[idx + 1];
-  const crumbParts = [current.group, current.parent, current.title].filter(Boolean);
+  const crumb = [current.group, current.parent, current.title].filter(Boolean);
+
   content.innerHTML = `
-    <div class="crumbs">${crumbParts.map((c, i) => `<span class="${i === crumbParts.length - 1 ? 'cur' : ''}">${c}</span>${i < crumbParts.length - 1 ? '<span class="sep">/</span>' : ''}`).join("")}</div>
+    <div class="tc-crumb">${crumb.map((c, i) =>
+      `<span class="${i === crumb.length - 1 ? 'cur' : ''}">${c}</span>${i < crumb.length - 1 ? '<span>/</span>' : ''}`
+    ).join("")}</div>
     <h1>${current.title}</h1>
+    <nav class="toc tc-toc" id="toc"></nav>
     ${TURN.renderBlocks(current.blocks)}
-    <nav class="page-nav">
-      ${prev ? `<a href="guide.html?page=${prev.id}"><div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 페이지</div><div class="t">${prev.title}</div></a>` : "<span></span>"}
-      ${next ? `<a class="next" href="guide.html?page=${next.id}"><div class="lbl">다음 페이지 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div><div class="t">${next.title}</div></a>` : "<span></span>"}
+    <nav class="tc-nav2">
+      ${prev ? `<a href="guide.html?page=${prev.id}">
+        <div class="lb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 페이지</div>
+        <div class="tt">${prev.title}</div></a>` : "<span></span>"}
+      ${next ? `<a class="nx" href="guide.html?page=${next.id}">
+        <div class="lb">다음 페이지 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="tt">${next.title}</div></a>` : "<span></span>"}
     </nav>
-    ${current.updated ? `<div class="updated">마지막 업데이트: ${current.updated}</div>` : ""}`;
+    ${current.updated ? `<div class="tc-upd">마지막 수정 ${current.updated}</div>` : ""}`;
+
   document.title = current.title + " · TURN CITY";
   TURN.bindBlocks(content);
   TURN.buildTOC(content, document.getElementById("toc"));
+
 });
 </script>
 </body>
