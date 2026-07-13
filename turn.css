@@ -1,15 +1,121 @@
 /* ============================================================
-   TURN CITY — turn.css
-   style.css를 덮어쓰지 않는다. 접근성 보정만 남긴 상태.
-   컬러/타이포/레이아웃은 전부 style.css가 담당한다.
+   TURN CITY — turn.css  (style.css 뒤에 로드)
+   구조 / 배경이미지(--hero-image) / 로고 썸네일(--logo) 전부 그대로 둔다.
+   파랑 + 검정 유지. 형태 · 타이포 · 시그니처만 턴 것으로 교체.
+   ------------------------------------------------------------
+   원복하려면 <link rel="stylesheet" href="turn.css"> 한 줄만 지우면 됨.
    ============================================================ */
 
-:focus-visible{
-  outline:2px solid var(--accent, #3d8bff);
-  outline-offset:2px;
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root{
+  /* 파랑 계열 유지. 턴 전용으로 더 진하고 전기적인 블루 */
+  --accent:#2E6BFF;          /* 기존 #3d8bff */
+  --accent-2:#7FA8FF;
+  --accent-soft:rgba(46,107,255,.14);
+  --accent-line:rgba(46,107,255,.42);
+
+  /* 핵심 1 — 흰 알약 버튼 → 턴 블루 버튼. 템플릿 티 여기서 대부분 빠진다 */
+  --pill:var(--accent);
+  --pill-txt:#fff;
+
+  /* 핵심 2 — 물렁한 14px 라운드 → 각진 8px */
+  --radius:8px;
+
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 
+::selection{background:rgba(46,107,255,.4)}
+
+/* ---------- 버튼 ---------- */
+.btn-start{border-radius:8px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em}
+.btn-start:hover{box-shadow:0 8px 26px rgba(46,107,255,.45)}
+.pill{border-radius:8px}
+.pill.solid:hover{box-shadow:0 12px 32px rgba(46,107,255,.4)}
+.pill.ghost{background:transparent;border:1px solid var(--line-2)}
+.pill.ghost:hover{background:rgba(255,255,255,.06);border-color:var(--accent-line)}
+
+/* ---------- 핵심 3 — 깜빡이(TURN SIGNAL) 셰브론 ----------
+   TURN = 방향 전환. 액티브 / 섹션헤드 / 트리 마커를 전부 셰브론으로 통일 */
+@keyframes tcBlink{0%,55%{opacity:1}56%,100%{opacity:.25}}
+
+.nav-center a.active{background:transparent;position:relative}
+.nav-center a.active::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  border-left:6px solid var(--accent);
+  border-top:4px solid transparent;border-bottom:4px solid transparent;
+  animation:tcBlink 1.3s steps(1,end) infinite;
+}
+.nav-center a.active::after{
+  content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);
+}
+
+.sec-head h2,.list-sec h2{display:flex;align-items:center;gap:12px}
+.sec-head h2::before,.list-sec h2::before{
+  content:"";flex:none;
+  border-left:9px solid var(--accent);
+  border-top:6px solid transparent;border-bottom:6px solid transparent;
+}
+
+/* ---------- 핵심 4 — 라벨 / 날짜는 모노 서체 (style.css가 코드블록에 쓰는 그 폰트) ---------- */
+.card-meta,.feat-meta,.article .a-meta,.crumbs,.pager .count,.updated,.toc .t,.tree .grp{
+  font-family:var(--mono);letter-spacing:.02em;
+}
+.badge,.badge-inline,.card-meta .tag,.filters button{
+  font-family:var(--mono);font-weight:700;letter-spacing:.04em;
+}
+
+/* ---------- 카드: 위로 들썩 → 좌측 액센트 바 ---------- */
+.card{border-radius:8px;position:relative}
+.card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;z-index:3;
+  background:var(--accent);transform:scaleY(0);transform-origin:top;
+  transition:transform .28s var(--ease);
+}
+.card:hover{transform:none;border-color:var(--accent-line);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.card:hover::before{transform:scaleY(1)}
+.card-title{transition:color .2s}
+.card:hover .card-title{color:var(--accent-2)}
+.card-thumb{border-radius:0}
+.badge{
+  background:rgba(10,10,11,.78);color:var(--accent-2);
+  border:1px solid var(--accent-line);border-radius:5px;font-size:10.5px;
+}
+
+/* ---------- 소식 대표 이미지 ---------- */
+.feat-thumb{border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px var(--line)}
+.feat-thumb:hover{transform:none;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px var(--accent-line)}
+.badge-inline{background:var(--accent-soft);color:var(--accent-2);border:1px solid var(--accent-line);border-radius:5px}
+
+/* ---------- 툴바 / 페이저 ---------- */
+.filters button{border-radius:7px;font-size:12.5px}
+.search input{border-radius:8px}
+.pager button{border-radius:8px}
+.pager .count{font-size:12px}
+
+/* ---------- 가이드 사이드 / TOC ---------- */
+.side-search input{border-radius:8px}
+.tree .node{border-radius:6px}
+.tree .node.active{background:var(--accent-soft)}
+.tree .node.active::before{           /* 동그란 점 → 셰브론 */
+  width:0;height:0;border-radius:0;background:transparent;
+  border-left:6px solid var(--accent);
+  border-top:4px solid transparent;border-bottom:4px solid transparent;
+}
+
+/* ---------- 본문 블록 ---------- */
+.page-nav a{border-radius:8px}
+.page-nav a:hover{transform:none;border-color:var(--accent-line)}
+.codeblock,.tbl-wrap,.tabs,.exp,.link-card,.hint,.blocks .tier,.embed{border-radius:8px}
+figure.img img{border-radius:8px}
+.link-card:hover{transform:none;border-color:var(--accent-line)}
+
+/* ---------- 푸터 ---------- */
+.socials a{border-radius:8px}
+.socials a:hover{transform:none;border-color:var(--accent-line);color:var(--accent-2)}
+
+/* ---------- 접근성 ---------- */
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
-  .reveal{opacity:1;transform:none}
+  .nav-center a.active::before{animation:none}
 }
