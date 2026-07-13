@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>소식 · TURN CITY</title>
-<meta name="theme-color" content="#FFA51F">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -16,23 +14,19 @@
 </head>
 <body>
 
-<header class="solid" id="hdr">
-  <div class="wrap nav tc-nav">
-    <a class="tc-logo" href="index.html">
-      <span class="blink" aria-hidden="true"></span>
-      <span class="wm">TURN <em>CITY</em></span>
-    </a>
-    <nav class="tc-links" id="navLinks">
-      <a href="news.html" class="on">소식</a>
+<header class="solid">
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="mark"></span><span class="name">TURN CITY</span></a>
+    <nav class="nav-center">
+      <a href="news.html" class="active">소식</a>
       <a href="guide.html">가이드</a>
       <a href="https://discord.gg/2026turn" target="_blank" rel="noopener">디스코드</a>
     </nav>
-    <button class="tc-burger" id="burger" aria-label="메뉴 열기">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-    <a class="tc-join" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">서버 접속</a>
+    <div class="nav-right"><a class="btn-start" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">GAME START</a></div>
   </div>
 </header>
+
+<div class="page-top"></div>
 
 <article class="article page-fade" id="art"></article>
 
@@ -44,49 +38,31 @@
 <script>
 TURN.ready(function(){
 
-  const CAT = { patch: "패치", notice: "공지" };
-  const back = `<a class="back-link" href="news.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>소식 목록으로</a>`;
-
-  document.getElementById("burger").addEventListener("click", () => {
-    document.getElementById("navLinks").classList.toggle("open");
-  });
-
+  const CAT = { patch: "패치노트", notice: "공지사항" };
   const id = new URLSearchParams(location.search).get("id");
   const posts = TURN.news();
   const post = TURN.newsById(id) || posts[0];
   const art = document.getElementById("art");
 
   if (!post) {
-    art.innerHTML = `${back}
-      <h1>이 글은 없습니다.</h1>
-      <p class="a-lead">주소가 잘못됐거나 글이 내려갔습니다. 소식 목록에서 다시 찾아보세요.</p>`;
-    return;
+    art.innerHTML = `<a class="back-link" href="news.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>소식 목록</a><h1>이 글은 없습니다.</h1><p class="a-lead">주소가 잘못됐거나 글이 내려갔습니다. 소식 목록에서 다시 찾아보세요.</p>`;
+  } else {
+    const idx = posts.findIndex(p => p.id === post.id);
+    const prev = posts[idx + 1], next = posts[idx - 1]; // 최신순 정렬이라 next=더 최신
+    art.innerHTML = `
+      <a class="back-link" href="news.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>소식 목록</a>
+      <div class="a-meta"><span class="badge-inline">${CAT[post.category] || "소식"}</span><span>${post.date.replace(/-/g, ". ")}.</span></div>
+      <h1>${post.title}</h1>
+      ${post.summary ? `<p class="a-lead">${post.summary}</p>` : ""}
+      <div class="a-hr"></div>
+      ${TURN.renderBlocks(post.blocks)}
+      <nav class="page-nav">
+        ${prev ? `<a href="article.html?id=${prev.id}"><div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 글</div><div class="t">${prev.title}</div></a>` : "<span></span>"}
+        ${next ? `<a class="next" href="article.html?id=${next.id}"><div class="lbl">다음 글 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div><div class="t">${next.title}</div></a>` : "<span></span>"}
+      </nav>`;
+    document.title = post.title + " · TURN CITY";
+    TURN.bindBlocks(art);
   }
-
-  const idx = posts.findIndex(p => p.id === post.id);
-  const prev = posts[idx + 1], next = posts[idx - 1]; // 최신순 정렬이라 next = 더 최신
-
-  art.innerHTML = `
-    ${back}
-    <div class="a-meta">
-      <span class="tc-tag ${post.category}">${(CAT[post.category] || "소식").toUpperCase()}</span>
-      <span>${post.date.replace(/-/g, ".")}</span>
-    </div>
-    <h1>${post.title}</h1>
-    ${post.summary ? `<p class="a-lead">${post.summary}</p>` : ""}
-    <hr class="a-hr">
-    ${TURN.renderBlocks(post.blocks)}
-    <nav class="page-nav">
-      ${prev ? `<a href="article.html?id=${prev.id}">
-        <div class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>이전 글</div>
-        <div class="t">${prev.title}</div></a>` : "<span></span>"}
-      ${next ? `<a class="next" href="article.html?id=${next.id}">
-        <div class="lbl">다음 글 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
-        <div class="t">${next.title}</div></a>` : "<span></span>"}
-    </nav>`;
-
-  document.title = post.title + " · TURN CITY";
-  TURN.bindBlocks(art);
 
 });
 </script>
