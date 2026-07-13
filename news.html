@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>소식 · TURN CITY</title>
-<meta name="description" content="턴시티 공지사항과 패치노트.">
-<meta name="theme-color" content="#FFA51F">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -17,70 +14,55 @@
 </head>
 <body>
 
-<header class="solid" id="hdr">
-  <div class="wrap nav tc-nav">
-    <a class="tc-logo" href="index.html">
-      <span class="blink" aria-hidden="true"></span>
-      <span class="wm">TURN <em>CITY</em></span>
-    </a>
-    <nav class="tc-links" id="navLinks">
-      <a href="news.html" class="on">소식</a>
+<header class="solid">
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="mark"></span><span class="name">TURN CITY</span></a>
+    <nav class="nav-center">
+      <a href="news.html" class="active">소식</a>
       <a href="guide.html">가이드</a>
       <a href="https://discord.gg/2026turn" target="_blank" rel="noopener">디스코드</a>
     </nav>
-    <button class="tc-burger" id="burger" aria-label="메뉴 열기">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-    <a class="tc-join" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">서버 접속</a>
+    <div class="nav-right"><a class="btn-start" href="https://cfx.re/join/xlzdevr" target="_blank" rel="noopener">GAME START</a></div>
   </div>
 </header>
 
-<!-- 최신 글 -->
-<section class="tc-lead">
-  <div class="wrap">
-    <div class="tc-eyebrow reveal in">
-      <span class="dot" aria-hidden="true"></span>
-      가장 최근 소식
-    </div>
-    <span class="tc-tag reveal in" id="fBadge">패치</span>
-    <h1 class="reveal in" data-d="1" id="fTitle"></h1>
-    <p class="reveal in" data-d="1" id="fDesc"></p>
-    <div class="row reveal in" data-d="2">
-      <a class="tc-btn line" id="fLink" href="#">읽어보기
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+<div class="page-top"></div>
+
+<!-- FEATURED (최신 글) -->
+<section class="featured">
+  <div class="wrap featured-grid">
+    <div class="reveal in">
+      <div class="feat-meta"><span class="badge-inline" id="fBadge">패치노트</span><span id="fDate"></span></div>
+      <h1 class="feat-title" id="fTitle"></h1>
+      <p class="feat-desc" id="fDesc"></p>
+      <a class="pill solid" id="fLink" href="#" style="margin-top:28px">최신소식 읽기
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <span class="tc-date" id="fDate"></span>
     </div>
+    <a class="feat-thumb reveal in" data-d="1" id="fThumb" href="#"></a>
   </div>
 </section>
 
-<hr class="lane">
-
-<!-- 전체 목록 -->
-<section class="tc-sec">
+<!-- LIST -->
+<section class="list-sec">
   <div class="wrap">
-    <div class="tc-sec-head reveal in">
-      <h2><span class="kicker">ARCHIVE</span>전체 기록</h2>
-    </div>
-
-    <div class="tc-bar reveal in">
-      <div class="tc-filters" id="filters">
+    <h2 class="reveal in">전체 기록</h2>
+    <div class="toolbar reveal in">
+      <div class="filters" id="filters">
         <button class="on" data-cat="all">전체</button>
-        <button data-cat="notice">공지</button>
-        <button data-cat="patch">패치</button>
+        <button data-cat="notice">공지사항</button>
+        <button data-cat="patch">패치노트</button>
       </div>
-      <label class="tc-find">
+      <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input id="searchInput" type="text" placeholder="제목으로 찾기">
-      </label>
+      </div>
     </div>
-
-    <div class="tc-log" id="grid"></div>
-
-    <div class="tc-pager">
-      <button id="prev">이전</button>
-      <span class="n" id="count">1 / 1</span>
-      <button id="next">다음</button>
+    <div class="grid" id="grid"></div>
+    <div class="pager">
+      <button id="prev">‹ 이전</button>
+      <span class="count" id="count">1 / 1</span>
+      <button class="next" id="next">다음 ›</button>
     </div>
   </div>
 </section>
@@ -93,77 +75,51 @@
 <script>
 TURN.ready(function(){
 
-  const CAT = { patch: "패치", notice: "공지" };
+  const CAT = { patch: "패치노트", notice: "공지사항" };
   const ALL = TURN.news();
 
-  document.getElementById("burger").addEventListener("click", () => {
-    document.getElementById("navLinks").classList.toggle("open");
-  });
-
-  // 최신 글
+  // featured = 최신
   const f = ALL[0];
   if (f) {
-    const badge = document.getElementById("fBadge");
-    badge.textContent = (CAT[f.category] || "소식").toUpperCase();
-    badge.className = "tc-tag reveal in " + f.category;
-    document.getElementById("fDate").textContent = f.date.replace(/-/g, ".");
-    document.getElementById("fTitle").textContent = f.title;
-    document.getElementById("fDesc").textContent = f.summary || "";
-    document.getElementById("fLink").href = "article.html?id=" + f.id;
+    fBadge.textContent = CAT[f.category] || "소식";
+    fDate.textContent = f.date.replace(/-/g, ". ") + ".";
+    fTitle.textContent = f.title;
+    fDesc.textContent = f.summary;
+    fLink.href = "article.html?id=" + f.id;
+    fThumb.href = "article.html?id=" + f.id;
   }
 
-  const PER = 10;
-  let cat = "all", q = "", page = 1;
-  const grid = document.getElementById("grid");
-  const countEl = document.getElementById("count");
-  const prev = document.getElementById("prev");
-  const next = document.getElementById("next");
+  const PER = 9; let cat = "all", q = "", page = 1;
+  const grid = document.getElementById("grid"), countEl = document.getElementById("count");
+  const prev = document.getElementById("prev"), next = document.getElementById("next");
+  const io = new IntersectionObserver((e) => e.forEach(x => { if (x.isIntersecting) { x.target.classList.add("in"); io.unobserve(x.target); } }), { threshold: .1 });
 
-  const io = new IntersectionObserver(e => e.forEach(x => {
-    if (x.isIntersecting) { x.target.classList.add("in"); io.unobserve(x.target); }
-  }), { threshold: .1 });
-
-  const filtered = () => ALL.filter(p =>
-    (cat === "all" || p.category === cat) &&
-    (q === "" || (p.title + (p.summary || "")).toLowerCase().includes(q))
-  );
-
+  const filtered = () => ALL.filter(p => (cat === "all" || p.category === cat) && (q === "" || (p.title + p.summary).toLowerCase().includes(q)));
   function render() {
-    const list = filtered();
-    const pages = Math.max(1, Math.ceil(list.length / PER));
+    const list = filtered(), pages = Math.max(1, Math.ceil(list.length / PER));
     if (page > pages) page = pages;
     const slice = list.slice((page - 1) * PER, page * PER);
-
     grid.innerHTML = slice.length ? slice.map((p, i) => `
-      <a class="tc-row reveal" data-d="${(i % 3) + 1}" href="article.html?id=${p.id}">
-        <span class="tc-date">${p.date.replace(/-/g, ".")}</span>
-        <span class="tc-tag ${p.category}">${(CAT[p.category] || "소식").toUpperCase()}</span>
-        <span class="tc-row-main">
-          <span class="tc-row-t">${p.title}</span>
-          ${p.summary ? `<span class="tc-row-d">${p.summary}</span>` : ""}
-        </span>
-        <svg class="tc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
-      </a>`).join("")
-      : `<div class="tc-empty">찾는 글이 없습니다.<br>다른 단어로 검색하거나 필터를 전체로 바꿔보세요.</div>`;
-
+      <a class="card reveal" data-d="${(i % 3) + 1}" href="article.html?id=${p.id}">
+        <div class="card-thumb"><span class="badge">${CAT[p.category] || "소식"}</span></div>
+        <div class="card-body">
+          <div class="card-meta"><span class="tag">${CAT[p.category] || "소식"}</span><span class="dot"></span><span>${p.date.replace(/-/g, ".")}</span></div>
+          <div class="card-title">${p.title}</div>
+        </div>
+      </a>`).join("") : `<div class="empty">찾는 글이 없습니다. 다른 단어로 검색해 보세요.</div>`;
     grid.querySelectorAll(".reveal").forEach(el => io.observe(el));
     countEl.textContent = `${page} / ${pages}`;
-    prev.disabled = page <= 1;
-    next.disabled = page >= pages;
+    prev.disabled = page <= 1; next.disabled = page >= pages;
   }
-
   document.getElementById("filters").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     [...e.currentTarget.children].forEach(x => x.classList.remove("on"));
     b.classList.add("on"); cat = b.dataset.cat; page = 1; render();
   });
-  document.getElementById("searchInput").addEventListener("input", e => {
-    q = e.target.value.trim().toLowerCase(); page = 1; render();
-  });
-  const up = () => (window.__lenis ? window.__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: "smooth" }));
-  prev.addEventListener("click", () => { if (page > 1) { page--; render(); up(); } });
-  next.addEventListener("click", () => { page++; render(); up(); });
-
+  document.getElementById("searchInput").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); page = 1; render(); });
+  prev.addEventListener("click", () => { if (page > 1) { page--; render(); scrollUp(); } });
+  next.addEventListener("click", () => { page++; render(); scrollUp(); });
+  function scrollUp() { (window.__lenis ? window.__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: "smooth" })); }
   render();
 
 });
